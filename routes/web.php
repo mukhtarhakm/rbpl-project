@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PengajuanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +35,13 @@ Route::get('/dashboard/bendahara', function () {
     return view('dashboard.bendahara');
 })->middleware('role:bendahara');
 
-Route::get('/dashboard/civitas', function () {
-    return view('dashboard.civitas');
+Route::get('/dashboard/civitas', [PengajuanController::class, 'index'])
+    ->middleware('role:civitas');
+
+Route::post('/pengajuan/store', [PengajuanController::class, 'store'])
+    ->middleware('role:civitas');
+
+Route::get('/pengajuan/create', function () {
+    return view('civitas.ajukan');
 })->middleware('role:civitas');
+
