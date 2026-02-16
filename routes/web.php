@@ -28,4 +28,12 @@ Route::post('/logout', [AuthController::class, 'logout']);
 
 Route::get('/dashboard/kepsek', function () {
     return view('dashboard.kepsek');
-});
+})->middleware('role:kepsek');
+
+Route::get('/dashboard/bendahara', function () {
+    return view('dashboard.bendahara');
+})->middleware('role:bendahara');
+
+Route::get('/dashboard/civitas', function () {
+    return view('dashboard.civitas');
+})->middleware('role:civitas');
