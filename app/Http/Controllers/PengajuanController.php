@@ -34,5 +34,29 @@ class PengajuanController extends Controller
 
             return view('dashboard.civitas', compact('pengajuans'));
     }
+
+    public function approve($id)
+    {
+        $pengajuan = pengajuan::findOrFail($id);
+        $pengajuan->status = 'disetujui';
+        $pengajuan->save();
+
+        return back();
+    }
+
+    public function reject($id)
+    {
+        $pengajuan = pengajuan::findOrFail($id);
+        $pengajuan->status = 'ditolak';
+        $pengajuan->save();
+
+        return back();
+    }
+
+    public function indexKepsek()
+    {
+        $pengajuans = pengajuan::all();
+        return view('dashboard.kepsek', compact('pengajuans'));
+    }
 //
 }
