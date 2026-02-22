@@ -18,6 +18,7 @@
         <th>Jumlah Dana</th>
         <th>Tanggal Dibutuhkan</th>
         <th>Status</th>
+        <th>Alasan Penolakan</th>
     </tr>
 
     @foreach($pengajuans as $pengajuan)
@@ -27,6 +28,7 @@
             <td>Rp {{ number_format($pengajuan->jumlah_dana) }}</td>
             <td>{{ $pengajuan->tanggal_dibutuhkan }}</td>
             <td>{{ $pengajuan->status ?? 'Menunggu' }}</td>
+            <td>{{ $pengajuan->alasan_penolakan ?? '-' }}</td>
         </tr>
     @endforeach
 </table>

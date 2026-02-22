@@ -26,6 +26,7 @@
 
                 <form action="/pengajuan/{{ $pengajuan->id }}/reject" method="POST" style="display:inline;">
                     @csrf
+                    <input type="text" name="alasan_penolakan" placeholder="Alasan penolakan">
                     <button type="submit">Tolak</button>
                 </form>
             @endif

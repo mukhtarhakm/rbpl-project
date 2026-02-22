@@ -38,16 +38,21 @@ class PengajuanController extends Controller
     public function approve($id)
     {
         $pengajuan = pengajuan::findOrFail($id);
-        $pengajuan->status = 'disetujui';
+        $pengajuan->status = 'disetujui_kepsek';
         $pengajuan->save();
 
         return back();
     }
 
-    public function reject($id)
+    public function reject(Request $request, $id)
     {
-        $pengajuan = pengajuan::findOrFail($id);
+        $request->validate([
+            'alasan_penolakan' => 'required'
+        ]);
+
+        $pengajuan = Pengajuan::findOrFail($id);
         $pengajuan->status = 'ditolak';
+        $pengajuan->alasan_penolakan = $request->alasan_penolakan;
         $pengajuan->save();
 
         return back();
