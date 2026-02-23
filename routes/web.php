@@ -50,3 +50,8 @@ Route::post('/pengajuan/{id}/approve', [PengajuanController::class, 'approve'])
 Route::post('/pengajuan/{id}/reject', [PengajuanController::class, 'reject'])
     ->middleware('role:kepsek');
 
+Route::get('/dashboard/bendahara', [PengajuanController::class, 'indexBendahara'])
+    ->middleware('role:bendahara');
+
+Route::post('/pengajuan/{id}/cairkan', [PengajuanController::class, 'cairkan'])
+    ->middleware('role:bendahara');

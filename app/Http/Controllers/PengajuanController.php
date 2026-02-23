@@ -63,5 +63,24 @@ class PengajuanController extends Controller
         $pengajuans = pengajuan::all();
         return view('dashboard.kepsek', compact('pengajuans'));
     }
+
+    public function indexBendahara()
+    {
+        $pengajuans = pengajuan::where('status', 'disetujui_kepsek')
+            ->whereNull('tanggal_pencairan')
+            ->get();
+
+        return view('dashboard.bendahara', compact('pengajuans'));
+    }
+
+    public function cairkan($id)
+    {
+        $pengajuan = pengajuan::findOrFail($id);
+        $pengajuan->tanggal_pencairan = now();
+        $pengajuan->status = 'dicairkan';
+        $pengajuan->save();
+
+        return back();
+    }
 //
 }

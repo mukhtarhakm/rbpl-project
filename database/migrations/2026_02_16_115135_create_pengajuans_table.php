@@ -21,8 +21,7 @@ return new class extends Migration
             $table->bigInteger('jumlah_dana');
             $table->date('tanggal_dibutuhkan');
 
-            $table->enum('status', ['menunggu', 'disetujui', 'ditolak'])
-                ->default('menunggu');
+            $table->string('status')->default('menunggu');
 
             $table->text('alasan_penolakan')->nullable();
 

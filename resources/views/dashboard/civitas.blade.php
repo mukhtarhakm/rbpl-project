@@ -27,7 +27,21 @@
             <td>{{ $pengajuan->deskripsi }}</td>
             <td>Rp {{ number_format($pengajuan->jumlah_dana) }}</td>
             <td>{{ $pengajuan->tanggal_dibutuhkan }}</td>
-            <td>{{ $pengajuan->status ?? 'Menunggu' }}</td>
+            <td> 
+                @if($pengajuan->status == 'menunggu')
+                    Menunggu
+                @elseif($pengajuan->status == 'disetujui_kepsek')
+                    Disetujui Kepsek
+                @elseif($pengajuan->status == 'disetujui')
+                    Disetujui Bendahara
+                @elseif($pengajuan->status == 'dicairkan')
+                    Dicairkan
+                @elseif($pengajuan->status == 'ditolak')
+                    Ditolak
+                @else
+                    -
+                @endif
+            </td>
             <td>{{ $pengajuan->alasan_penolakan ?? '-' }}</td>
         </tr>
     @endforeach

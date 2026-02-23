@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-         Schema::table('pengajuans', function (Blueprint $table) {
-        $table->string('status')->default('menunggu')->change();
-    });
+        Schema::table('pengajuans', function (Blueprint $table) {
+            $table->timestamp('tanggal_pencairan')->nullable()->after('status');
+        });
     }
 
     /**
@@ -21,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        
+        Schema::table('pengajuans', function (Blueprint $table) {
+            $table->dropColumn('tanggal_pencairan');
+        });
     }
 };
