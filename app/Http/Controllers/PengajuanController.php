@@ -82,5 +82,24 @@ class PengajuanController extends Controller
 
         return back();
     }
+
+    public function uploadBukti(Request $request, $id)
+    {
+        $request->validate([
+            'bukti' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+        ]);
+
+        $pengajuan = Pengajuan::findOrFail($id);
+
+        $file = $request->file('bukti');
+        $namafile = time() . '_' . $file->getClientOriginalName();
+        $file->storeAs('public/bukti', $namafile);
+
+        $pengajuan->bukti_pengeluaran = $namafile;
+        $pengajuan->status = 'selesai';
+        $pengajuan->save();
+
+        return back()->with('success', 'Bukti pengeluaran berhasil diupload');
+    }
 //
 }

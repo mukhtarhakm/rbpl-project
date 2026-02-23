@@ -36,8 +36,17 @@
                     Disetujui Bendahara
                 @elseif($pengajuan->status == 'dicairkan')
                     Dicairkan
+                    <form action="/pengajuan/{{ $pengajuan->id }}/upload-bukti" 
+                        method="POST" 
+                        enctype="multipart/form-data">
+                        @csrf
+                        <input type="file" name="bukti" required>
+                        <button type="submit">Upload Bukti</button>
+                    </form>
                 @elseif($pengajuan->status == 'ditolak')
                     Ditolak
+                @elseif($pengajuan->status == 'selesai')
+                    Selesai
                 @else
                     -
                 @endif

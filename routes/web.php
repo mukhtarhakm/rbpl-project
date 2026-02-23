@@ -55,3 +55,6 @@ Route::get('/dashboard/bendahara', [PengajuanController::class, 'indexBendahara'
 
 Route::post('/pengajuan/{id}/cairkan', [PengajuanController::class, 'cairkan'])
     ->middleware('role:bendahara');
+
+Route::post('/pengajuan/{id}/upload-bukti', [PengajuanController::class, 'uploadBukti'])
+    ->middleware('role:civitas');
