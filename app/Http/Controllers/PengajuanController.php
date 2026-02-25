@@ -101,5 +101,23 @@ class PengajuanController extends Controller
 
         return back()->with('success', 'Bukti pengeluaran berhasil diupload');
     }
+
+    public function persetujuan()
+{
+    $pengajuans = Pengajuan::where('status', 'menunggu')
+                    ->latest()
+                    ->get();
+
+    return view('kepsek.persetujuan', compact('pengajuans'));
+}
+
+    public function riwayat()
+{
+    $pengajuans = \App\Models\Pengajuan::where('user_id', auth()->id())
+                        ->latest()
+                        ->get();
+
+    return view('civitas.riwayat', compact('pengajuans'));
+}
 //
 }

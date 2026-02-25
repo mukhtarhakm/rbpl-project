@@ -100,7 +100,7 @@
     </a>
 
     <!-- RIWAYAT -->
-    <a href="#"
+    <a href="/civitas/riwayat"
        class="bg-white rounded-2xl shadow-md p-8 text-center 
               hover:shadow-xl hover:-translate-y-1 transition duration-300">
         <div class="w-16 h-16 mx-auto rounded-2xl bg-purple-500 

@@ -68,3 +68,10 @@ Route::get('/penerimaan/create', [PenerimaanDanaController::class, 'create'])
 
 Route::post('/penerimaan/store', [PenerimaanDanaController::class, 'store'])
     ->middleware('role:bendahara');
+
+Route::get('/dashboard/kepsek/persetujuan', 
+    [PengajuanController::class, 'persetujuan'])
+    ->middleware('role:kepsek');
+
+Route::get('/civitas/riwayat', [PengajuanController::class, 'riwayat'])
+    ->middleware('role:civitas');
