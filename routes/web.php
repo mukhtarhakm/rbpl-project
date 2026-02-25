@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PengajuanController;
+use App\Http\Controllers\PenerimaanDanaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,3 +59,12 @@ Route::post('/pengajuan/{id}/cairkan', [PengajuanController::class, 'cairkan'])
 
 Route::post('/pengajuan/{id}/upload-bukti', [PengajuanController::class, 'uploadBukti'])
     ->middleware('role:civitas');
+
+Route::get('/penerimaan', [PenerimaanDanaController::class, 'index'])
+    ->middleware('role:bendahara');
+
+Route::get('/penerimaan/create', [PenerimaanDanaController::class, 'create'])
+    ->middleware('role:bendahara');
+
+Route::post('/penerimaan/store', [PenerimaanDanaController::class, 'store'])
+    ->middleware('role:bendahara');
