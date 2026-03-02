@@ -1,40 +1,66 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard Kepala Sekolah</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Kepala Sekolah - BOS Management System</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
 
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-50 min-h-screen pb-10">
 
     <!-- HEADER -->
-    <div class="bg-blue-700 text-white px-6 py-4 flex justify-between items-center shadow">
-        <h1 class="font-semibold text-lg">Dashboard Kepala Sekolah</h1>
+    <header class="bg-blue-600 text-white sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
+            <h1 class="font-bold text-lg tracking-tight">Dashboard Kepala Sekolah</h1>
+            
+            <div class="flex items-center space-x-4">
+                <!-- Notifications -->
+                <button class="relative p-2 text-white/90 hover:text-white transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    <span class="absolute top-2 right-2 flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    </span>
+                </button>
 
-        <form action="/logout" method="POST">
-            @csrf
-            <button class="bg-white text-blue-700 px-3 py-1 rounded-lg text-sm hover:bg-gray-200">
-                Logout
-            </button>
-        </form>
-    </div>
+                <!-- Logout -->
+                <form action="/logout" method="POST" class="inline">
+                    @csrf
+                    <button type="submit" class="p-2 text-white/90 hover:text-white transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
 
-    <div class="p-6 space-y-6">
+    <main class="max-w-4xl mx-auto px-4 mt-6 space-y-8">
 
         <!-- WELCOME CARD -->
-        <div class="bg-gradient-to-r from-purple-600 to-pink-500 
-                text-white p-6 rounded-2xl shadow-lg">
-            <p class="text-sm opacity-80">Selamat Datang,</p>
-            <h2 class="text-xl font-semibold">
-                {{ auth()->user()->name ?? 'Kepala Sekolah' }}
-            </h2>
-            <p class="text-sm opacity-80">
-                Pantau dan kelola keuangan sekolah
-            </p>
-        </div>
+        <section class="bg-gradient-to-br from-purple-600 to-indigo-800 text-white p-6 rounded-[2rem] shadow-xl relative overflow-hidden">
+            <div class="relative z-10">
+                <p class="text-purple-100 text-sm font-medium mb-1">Selamat Datang,</p>
+                <h2 class="text-2xl font-bold mb-2">
+                    {{ auth()->user()->name ?? 'Dr. Budi Santoso' }}
+                </h2>
+                <p class="text-purple-100/80 text-sm max-w-[200px] leading-relaxed">
+                    Pantau dan kelola keuangan sekolah
+                </p>
+            </div>
+            <!-- Decorative circle -->
+            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+        </section>
 
+        <!-- STATISTIK -->
         @php
             $menunggu = $pengajuans->where('status', 'menunggu')->count();
             $disetujui = $pengajuans->where('status', 'disetujui_kepsek')->count();
@@ -42,186 +68,167 @@
             $realisasi = $pengajuans->where('status', 'disetujui')->sum('jumlah_dana');
         @endphp
 
-        <!-- STATISTIK -->
-        <div class="grid grid-cols-2 gap-4">
-
-            <div class="bg-yellow-100 p-4 rounded-2xl shadow flex items-center gap-3">
-                <div class="w-10 h-10 bg-yellow-400 rounded-xl flex items-center justify-center">
-                    <img src="{{ asset('icons/clock.svg') }}" class="w-5 h-5">
+        <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col items-center text-center">
+                <div class="bg-yellow-50 p-2 rounded-xl mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-600">Menunggu</p>
-                    <p class="text-lg font-bold text-yellow-700">{{ $menunggu }}</p>
-                </div>
+                <p class="text-xl font-bold text-gray-800">{{ $menunggu }}</p>
+                <p class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mt-1">Persetujuan</p>
             </div>
 
-            <div class="bg-green-100 p-4 rounded-2xl shadow flex items-center gap-3">
-                <div class="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
-                    <img src="{{ asset('icons/check.svg') }}" class="w-5 h-5">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col items-center text-center">
+                <div class="bg-green-50 p-2 rounded-xl mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-600">Disetujui</p>
-                    <p class="text-lg font-bold text-green-700">{{ $disetujui }}</p>
-                </div>
+                <p class="text-xl font-bold text-gray-800">{{ $disetujui }}</p>
+                <p class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mt-1">Disetujui</p>
             </div>
 
-            <div class="bg-blue-100 p-4 rounded-2xl shadow flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
-                    <img src="{{ asset('icons/money.svg') }}" class="w-5 h-5">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col items-center text-center">
+                <div class="bg-blue-50 p-2 rounded-xl mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-600">Total Anggaran</p>
-                    <p class="text-lg font-bold text-blue-700">
-                        Rp {{ number_format($totalAnggaran) }}
-                    </p>
-                </div>
+                <p class="text-xl font-bold text-gray-800">
+                    {{ number_format($totalAnggaran / 1000000, 1) }} Jt
+                </p>
+                <p class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mt-1 text-center">Total Anggaran</p>
             </div>
 
-            <div class="bg-purple-100 p-4 rounded-2xl shadow flex items-center gap-3">
-                <div class="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center">
-                    <img src="{{ asset('icons/chart.svg') }}" class="w-5 h-5">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col items-center text-center">
+                <div class="bg-purple-50 p-2 rounded-xl mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-600">Realisasi</p>
-                    <p class="text-lg font-bold text-purple-700">
-                        Rp {{ number_format($realisasi) }}
-                    </p>
-                </div>
+                <p class="text-xl font-bold text-gray-800">
+                    {{ $totalAnggaran > 0 ? round(($realisasi / $totalAnggaran) * 100) : 0 }}%
+                </p>
+                <p class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mt-1">Realisasi</p>
             </div>
-
-        </div>
+        </section>
 
         <!-- MENU UTAMA -->
-        <div class="grid grid-cols-2 gap-4">
+        <section>
+            <h2 class="text-gray-800 font-bold text-sm mb-4">Menu Utama</h2>
 
-            <a href="/dashboard/kepsek/persetujuan"
-                class="bg-white p-6 rounded-2xl shadow text-center hover:shadow-lg transition">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- PERSETUJUAN -->
+                <a href="/dashboard/kepsek/persetujuan" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex flex-col items-center group hover:shadow-md transition">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-500 flex items-center justify-center mb-3 group-hover:scale-110 transition duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <p class="text-xs font-semibold text-gray-600 text-center">Persetujuan Pengeluaran</p>
+                </a>
 
-                <div class="w-14 h-14 mx-auto rounded-xl bg-blue-500 
-                    flex items-center justify-center">
-                    <img src="{{ asset('icons/approval.svg') }}" class="w-6 h-6">
-                </div>
+                <!-- LAPORAN -->
+                <a href="#" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex flex-col items-center group hover:shadow-md transition">
+                    <div class="w-14 h-14 rounded-2xl bg-green-500 flex items-center justify-center mb-3 group-hover:scale-110 transition duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 014-4h4m-4-6l4 4-4 4" />
+                        </svg>
+                    </div>
+                    <p class="text-xs font-semibold text-gray-600 text-center">Laporan Keuangan</p>
+                </a>
 
-                <p class="mt-3 text-sm font-medium">Persetujuan</p>
-            </a>
+                <!-- RKAS -->
+                <a href="#" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex flex-col items-center group hover:shadow-md transition">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-500 flex items-center justify-center mb-3 group-hover:scale-110 transition duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <p class="text-xs font-semibold text-gray-600 text-center">Status RKAS</p>
+                </a>
 
-            <a href="#" class="bg-white p-6 rounded-2xl shadow text-center hover:shadow-lg transition">
-
-                <div class="w-14 h-14 mx-auto rounded-xl bg-green-500 
-                    flex items-center justify-center">
-                    <img src="{{ asset('icons/report.svg') }}" class="w-6 h-6">
-                </div>
-
-                <p class="mt-3 text-sm font-medium">Laporan</p>
-            </a>
-
-            <a href="#" class="bg-white p-6 rounded-2xl shadow text-center hover:shadow-lg transition">
-
-                <div class="w-14 h-14 mx-auto rounded-xl bg-purple-500 
-                    flex items-center justify-center">
-                    <img src="{{ asset('icons/rkas.svg') }}" class="w-6 h-6">
-                </div>
-
-                <p class="mt-3 text-sm font-medium">Status RKAS</p>
-            </a>
-
-            <a href="#" class="bg-white p-6 rounded-2xl shadow text-center hover:shadow-lg transition">
-
-                <div class="w-14 h-14 mx-auto rounded-xl bg-orange-500 
-                    flex items-center justify-center">
-                    <img src="{{ asset('icons/notification.svg') }}" class="w-6 h-6">
-                </div>
-
-                <p class="mt-3 text-sm font-medium">Notifikasi</p>
-            </a>
-
-        </div>
+                <!-- NOTIFIKASI -->
+                <a href="#" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex flex-col items-center group hover:shadow-md transition">
+                    <div class="w-14 h-14 rounded-2xl bg-orange-500 flex items-center justify-center mb-3 group-hover:scale-110 transition duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                    </div>
+                    <p class="text-xs font-semibold text-gray-600 text-center">Notifikasi</p>
+                </a>
+            </div>
+        </section>
 
         <!-- PERSETUJUAN TERTUNDA -->
-        <div>
+        <section>
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-gray-700 font-semibold">Persetujuan Tertunda</h2>
-                <a href="#" class="text-blue-600 text-sm">Lihat Semua</a>
+                <h2 class="text-gray-800 font-bold text-sm">Persetujuan Tertunda</h2>
+                <a href="/dashboard/kepsek/persetujuan" class="text-blue-600 text-xs font-semibold">Lihat Semua</a>
             </div>
 
             <div class="space-y-4">
-
-                @foreach($pengajuans->where('status', 'menunggu') as $pengajuan)
-
-                    <div class="bg-white rounded-2xl shadow p-4 border-l-4 border-yellow-400">
-
-                        <!-- HEADER -->
+                @forelse($pengajuans->where('status', 'menunggu') as $item)
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 space-y-4">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="font-semibold text-gray-800">
-                                    {{ $pengajuan->judul }}
-                                </p>
-                                <p class="text-sm text-gray-500">
-                                    {{ $pengajuan->user->name ?? '-' }}
-                                </p>
-                                <p class="text-sm font-medium text-gray-700 mt-1">
-                                    Rp {{ number_format($pengajuan->jumlah_dana) }}
-                                </p>
+                                <h3 class="font-bold text-gray-800 text-sm mb-1">{{ $item->judul }}</h3>
+                                <p class="text-xs text-gray-400">Pengaju: <span class="text-gray-600 font-medium">{{ $item->user->name ?? '-' }}</span></p>
+                                <p class="text-sm font-bold text-blue-600 mt-2">Rp {{ number_format($item->jumlah_dana) }}</p>
                             </div>
-
-                            <span class="bg-yellow-100 text-yellow-700 text-xs px-3 py-1 rounded-full">
-                                Pending
-                            </span>
+                            <span class="text-[10px] font-bold px-3 py-1 bg-yellow-50 text-yellow-600 rounded-full uppercase tracking-wider">Pending</span>
                         </div>
 
-                        <!-- BUTTON -->
-                        <div class="flex gap-3 mt-4">
-
-                            <form action="/pengajuan/{{ $pengajuan->id }}/approve" method="POST">
+                        <div class="flex space-x-3 pt-2">
+                            <form action="/pengajuan/{{ $item->id }}/approve" method="POST" class="flex-1">
                                 @csrf
-                                <button
-                                    class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow">
-                                    Setujui
-                                </button>
+                                <button type="submit" class="w-full py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl text-xs font-bold transition">Setujui</button>
                             </form>
-
-                            <form action="/pengajuan/{{ $pengajuan->id }}/reject" method="POST">
+                            <form action="/pengajuan/{{ $item->id }}/reject" method="POST" class="flex-1">
                                 @csrf
                                 <input type="hidden" name="alasan_penolakan" value="Ditolak oleh Kepala Sekolah">
-                                <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm shadow">
-                                    Tolak
-                                </button>
+                                <button type="submit" class="w-full py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold transition">Tolak</button>
                             </form>
-
                         </div>
-
                     </div>
+                @empty
+                    <!-- Placeholder RKAS if no pengajuan found or just static RKAS as in figma -->
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex justify-between items-center border-l-4 border-blue-500">
+                        <div>
+                            <h3 class="font-bold text-gray-800 text-sm mb-1">RKAS Tahun 2025</h3>
+                            <p class="text-xs text-gray-400 mb-2">Bendahara: <span class="text-gray-600 font-medium">Siti Nurhaliza</span></p>
+                            <p class="text-sm font-bold text-gray-800">Total: Rp 500.000.000</p>
+                        </div>
+                        <div class="flex flex-col items-end space-y-3">
+                            <span class="text-[10px] font-bold px-3 py-1 bg-blue-50 text-blue-600 rounded-full uppercase tracking-wider">Review</span>
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-xl text-[10px] font-bold shadow-lg shadow-blue-500/20">Tinjau Detail</button>
+                        </div>
+                    </div>
+                @endforelse
 
-                @endforeach
-
+                <!-- Always show RKAS example if needed for matches Figma -->
+                @if($pengajuans->where('status', 'menunggu')->count() > 0)
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex justify-between items-center border-l-4 border-blue-500">
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-sm mb-1">RKAS Tahun 2025</h3>
+                        <p class="text-xs text-gray-400 mb-2">Bendahara: <span class="text-gray-600 font-medium">Siti Nurhaliza</span></p>
+                        <p class="text-sm font-bold text-gray-800">Total: Rp 500.000.000</p>
+                    </div>
+                    <div class="flex flex-col items-end space-y-3">
+                        <span class="text-[10px] font-bold px-3 py-1 bg-blue-50 text-blue-600 rounded-full uppercase tracking-wider">Review</span>
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded-xl text-[10px] font-bold shadow-lg shadow-blue-500/20">Tinjau Detail</button>
+                    </div>
+                </div>
+                @endif
             </div>
-        </div>
+        </section>
 
-        <div class="bg-white rounded-2xl shadow p-4 border-l-4 border-blue-500">
+    </main>
 
-    <div class="flex justify-between items-start">
-        <div>
-            <p class="font-semibold text-gray-800">
-                RKAS Tahun 2025
-            </p>
-            <p class="text-sm text-gray-500">
-                Siti Nurhaliza
-            </p>
-            <p class="text-sm font-medium text-gray-700 mt-1">
-                Total: Rp 500.000.000
-            </p>
-        </div>
+</body>
+</html>
 
-        <span class="bg-blue-100 text-blue-700 text-xs px-3 py-1 rounded-full">
-            Review
-        </span>
-    </div>
-
-    <button class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm shadow">
-        Tinjau Detail
-    </button>
-
-</div>
 
 </body>
 
