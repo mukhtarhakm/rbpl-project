@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PengajuanController;
 use App\Http\Controllers\PenerimaanDanaController;
+use App\Http\Controllers\RKASController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,3 +76,8 @@ Route::get('/dashboard/kepsek/persetujuan',
 
 Route::get('/civitas/riwayat', [PengajuanController::class, 'riwayat'])
     ->middleware('role:civitas');
+
+Route::get('/rkas', [RKASController::class, 'create'])
+    ->middleware('role:bendahara');
+Route::post('/rkas/store', [RKASController::class, 'store'])
+    ->middleware('role:bendahara');
