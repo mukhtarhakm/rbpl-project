@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Pengajuan;
+use App\Models\RKAS;
 use Illuminate\Support\Facades\Auth;
 
 class PengajuanController extends Controller
@@ -60,8 +61,9 @@ class PengajuanController extends Controller
 
     public function indexKepsek()
     {
-        $pengajuans = pengajuan::all();
-        return view('dashboard.kepsek', compact('pengajuans'));
+        $pengajuans = Pengajuan::all();
+        $rkas_list = RKAS::where('status', 'menunggu')->get();
+        return view('dashboard.kepsek', compact('pengajuans', 'rkas_list'));
     }
 
     public function indexBendahara()
@@ -103,21 +105,35 @@ class PengajuanController extends Controller
     }
 
     public function persetujuan()
-{
-    $pengajuans = Pengajuan::where('status', 'menunggu')
-                    ->latest()
-                    ->get();
-
-    return view('kepsek.persetujuan', compact('pengajuans'));
-}
-
-    public function riwayat()
-{
-    $pengajuans = \App\Models\Pengajuan::where('user_id', auth()->id())
+    {
+        $pengajuans = Pengajuan::where('status', 'menunggu')
                         ->latest()
                         ->get();
 
-    return view('civitas.riwayat', compact('pengajuans'));
-}
-//
+        $rkas_list = RKAS::where('status', 'menunggu')
+                        ->latest()
+                        ->get();
+
+        return view('kepsek.persetujuan', compact('pengajuans', 'rkas_list'));
+    }
+
+    public function riwayat()
+    {
+        $pengajuans = \App\Models\Pengajuan::where('user_id', auth()->id())
+                            ->latest()
+                            ->get();
+
+        return view('civitas.riwayat', compact('pengajuans'));
+    }
+
+    public function persetujuanDetail($type, $id)
+    {
+        if ($type === 'pengajuan') {
+            $item = Pengajuan::findOrFail($id);
+        } else {
+            $item = RKAS::findOrFail($id);
+        }
+
+        return view('kepsek.persetujuan-detail', compact('item', 'type'));
+    }
 }

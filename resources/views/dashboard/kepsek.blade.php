@@ -4,37 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Kepala Sekolah - BOS Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
+        .card-premium { 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(229, 231, 235, 0.5);
+        }
+        .card-premium:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
     </style>
 </head>
 
-<body class="bg-gray-50 min-h-screen pb-10">
+<body class="bg-[#F8FAFC] min-h-screen pb-10">
 
     <!-- HEADER -->
-    <header class="bg-blue-600 text-white sticky top-0 z-50 shadow-sm">
-        <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
-            <h1 class="font-bold text-lg tracking-tight">Dashboard Kepala Sekolah</h1>
+    <header class="bg-[#2563EB] text-white sticky top-0 z-50 shadow-lg">
+        <div class="max-w-6xl mx-auto px-6 h-20 flex justify-between items-center">
+            <h1 class="font-extrabold text-xl tracking-tight">BOS <span class="text-blue-200">System</span></h1>
             
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-6">
                 <!-- Notifications -->
-                <button class="relative p-2 text-white/90 hover:text-white transition">
+                <button class="relative p-2.5 bg-white/10 rounded-full hover:bg-white/20 transition-all">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                     </svg>
-                    <span class="absolute top-2 right-2 flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                    </span>
+                    <span class="absolute top-0 right-0 h-3 w-3 bg-rose-500 border-2 border-blue-600 rounded-full"></span>
                 </button>
 
                 <!-- Logout -->
                 <form action="/logout" method="POST" class="inline">
                     @csrf
-                    <button type="submit" class="p-2 text-white/90 hover:text-white transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <button type="submit" class="p-2.5 bg-white/10 rounded-full hover:bg-rose-500 transition-all group">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
                     </button>
@@ -43,183 +49,182 @@
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 mt-6 space-y-8">
+    <main class="max-w-5xl mx-auto px-6 mt-10 space-y-10">
 
         <!-- WELCOME CARD -->
-        <section class="bg-gradient-to-br from-purple-600 to-indigo-800 text-white p-6 rounded-[2rem] shadow-xl relative overflow-hidden">
-            <div class="relative z-10">
-                <p class="text-purple-100 text-sm font-medium mb-1">Selamat Datang,</p>
-                <h2 class="text-2xl font-bold mb-2">
-                    {{ auth()->user()->name ?? 'Dr. Budi Santoso' }}
+        <section class="bg-gradient-to-br from-[#4F46E5] to-[#7C3AED] text-white p-10 rounded-[3rem] shadow-2xl relative overflow-hidden">
+            <div class="relative z-10 space-y-2">
+                <p class="text-indigo-100 text-sm font-bold tracking-widest uppercase mb-2">Principal Dashboard</p>
+                <h2 class="text-4xl font-black mb-1">
+                    Halo, {{ auth()->user()->name ?? 'Kepala Sekolah' }}
                 </h2>
-                <p class="text-purple-100/80 text-sm max-w-[200px] leading-relaxed">
-                    Pantau dan kelola keuangan sekolah
+                <p class="text-indigo-100/80 text-lg font-medium max-w-md leading-relaxed">
+                    Kelola rencana anggaran dan pengajuan dana sekolah dengan lebih efisien.
                 </p>
             </div>
-            <!-- Decorative circle -->
-            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+            <!-- Decorative elements -->
+            <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
+            <div class="absolute right-10 top-10 w-20 h-20 bg-indigo-400/20 rounded-full blur-xl"></div>
         </section>
 
-        <!-- STATISTIK -->
+        <!-- STATISTIK PILLS -->
         @php
             $menunggu = $pengajuans->where('status', 'menunggu')->count();
+            $rkas_menunggu = $rkas_list->count();
             $disetujui = $pengajuans->where('status', 'disetujui_kepsek')->count();
             $totalAnggaran = $pengajuans->sum('jumlah_dana');
             $realisasi = $pengajuans->where('status', 'disetujui')->sum('jumlah_dana');
         @endphp
 
-        <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col items-center text-center">
-                <div class="bg-yellow-50 p-2 rounded-xl mb-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-white rounded-[2rem] p-6 card-premium flex items-center gap-5">
+                <div class="bg-amber-100 p-4 rounded-2xl text-amber-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
-                <p class="text-xl font-bold text-gray-800">{{ $menunggu }}</p>
-                <p class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mt-1">Persetujuan</p>
+                <div>
+                    <p class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-0.5">Menunggu</p>
+                    <p class="text-2xl font-black text-gray-900">{{ $menunggu + $rkas_menunggu }}</p>
+                </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col items-center text-center">
-                <div class="bg-green-50 p-2 rounded-xl mb-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="bg-white rounded-[2rem] p-6 card-premium flex items-center gap-5">
+                <div class="bg-emerald-100 p-4 rounded-2xl text-emerald-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
-                <p class="text-xl font-bold text-gray-800">{{ $disetujui }}</p>
-                <p class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mt-1">Disetujui</p>
+                <div>
+                    <p class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-0.5">Disetujui</p>
+                    <p class="text-2xl font-black text-gray-900">{{ $disetujui }}</p>
+                </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col items-center text-center">
-                <div class="bg-blue-50 p-2 rounded-xl mb-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="bg-white rounded-[2rem] p-6 card-premium flex items-center gap-5">
+                <div class="bg-blue-100 p-4 rounded-2xl text-blue-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
-                <p class="text-xl font-bold text-gray-800">
-                    {{ number_format($totalAnggaran / 1000000, 1) }} Jt
-                </p>
-                <p class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mt-1 text-center">Total Anggaran</p>
+                <div>
+                    <p class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-0.5">Total</p>
+                    <p class="text-2xl font-black text-gray-900">{{ number_format($totalAnggaran/1000000, 1) }}M</p>
+                </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col items-center text-center">
-                <div class="bg-purple-50 p-2 rounded-xl mb-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            <div class="bg-white rounded-[2rem] p-6 card-premium flex items-center gap-5">
+                <div class="bg-purple-100 p-4 rounded-2xl text-purple-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                     </svg>
                 </div>
-                <p class="text-xl font-bold text-gray-800">
-                    {{ $totalAnggaran > 0 ? round(($realisasi / $totalAnggaran) * 100) : 0 }}%
-                </p>
-                <p class="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mt-1">Realisasi</p>
-            </div>
-        </section>
-
-        <!-- MENU UTAMA -->
-        <section>
-            <h2 class="text-gray-800 font-bold text-sm mb-4">Menu Utama</h2>
-
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- PERSETUJUAN -->
-                <a href="/dashboard/kepsek/persetujuan" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex flex-col items-center group hover:shadow-md transition">
-                    <div class="w-14 h-14 rounded-2xl bg-blue-500 flex items-center justify-center mb-3 group-hover:scale-110 transition duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <p class="text-xs font-semibold text-gray-600 text-center">Persetujuan Pengeluaran</p>
-                </a>
-
-                <!-- LAPORAN -->
-                <a href="#" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex flex-col items-center group hover:shadow-md transition">
-                    <div class="w-14 h-14 rounded-2xl bg-green-500 flex items-center justify-center mb-3 group-hover:scale-110 transition duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 014-4h4m-4-6l4 4-4 4" />
-                        </svg>
-                    </div>
-                    <p class="text-xs font-semibold text-gray-600 text-center">Laporan Keuangan</p>
-                </a>
-
-                <!-- RKAS -->
-                <a href="#" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex flex-col items-center group hover:shadow-md transition">
-                    <div class="w-14 h-14 rounded-2xl bg-purple-500 flex items-center justify-center mb-3 group-hover:scale-110 transition duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                    </div>
-                    <p class="text-xs font-semibold text-gray-600 text-center">Status RKAS</p>
-                </a>
-
-                <!-- NOTIFIKASI -->
-                <a href="#" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex flex-col items-center group hover:shadow-md transition">
-                    <div class="w-14 h-14 rounded-2xl bg-orange-500 flex items-center justify-center mb-3 group-hover:scale-110 transition duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
-                    </div>
-                    <p class="text-xs font-semibold text-gray-600 text-center">Notifikasi</p>
-                </a>
-            </div>
-        </section>
-
-        <!-- PERSETUJUAN TERTUNDA -->
-        <section>
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-gray-800 font-bold text-sm">Persetujuan Tertunda</h2>
-                <a href="/dashboard/kepsek/persetujuan" class="text-blue-600 text-xs font-semibold">Lihat Semua</a>
-            </div>
-
-            <div class="space-y-4">
-                @forelse($pengajuans->where('status', 'menunggu') as $item)
-                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 space-y-4">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="font-bold text-gray-800 text-sm mb-1">{{ $item->judul }}</h3>
-                                <p class="text-xs text-gray-400">Pengaju: <span class="text-gray-600 font-medium">{{ $item->user->name ?? '-' }}</span></p>
-                                <p class="text-sm font-bold text-blue-600 mt-2">Rp {{ number_format($item->jumlah_dana) }}</p>
-                            </div>
-                            <span class="text-[10px] font-bold px-3 py-1 bg-yellow-50 text-yellow-600 rounded-full uppercase tracking-wider">Pending</span>
-                        </div>
-
-                        <div class="flex space-x-3 pt-2">
-                            <form action="/pengajuan/{{ $item->id }}/approve" method="POST" class="flex-1">
-                                @csrf
-                                <button type="submit" class="w-full py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl text-xs font-bold transition">Setujui</button>
-                            </form>
-                            <form action="/pengajuan/{{ $item->id }}/reject" method="POST" class="flex-1">
-                                @csrf
-                                <input type="hidden" name="alasan_penolakan" value="Ditolak oleh Kepala Sekolah">
-                                <button type="submit" class="w-full py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold transition">Tolak</button>
-                            </form>
-                        </div>
-                    </div>
-                @empty
-                    <!-- Placeholder RKAS if no pengajuan found or just static RKAS as in figma -->
-                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex justify-between items-center border-l-4 border-blue-500">
-                        <div>
-                            <h3 class="font-bold text-gray-800 text-sm mb-1">RKAS Tahun 2025</h3>
-                            <p class="text-xs text-gray-400 mb-2">Bendahara: <span class="text-gray-600 font-medium">Siti Nurhaliza</span></p>
-                            <p class="text-sm font-bold text-gray-800">Total: Rp 500.000.000</p>
-                        </div>
-                        <div class="flex flex-col items-end space-y-3">
-                            <span class="text-[10px] font-bold px-3 py-1 bg-blue-50 text-blue-600 rounded-full uppercase tracking-wider">Review</span>
-                            <button class="bg-blue-600 text-white px-4 py-2 rounded-xl text-[10px] font-bold shadow-lg shadow-blue-500/20">Tinjau Detail</button>
-                        </div>
-                    </div>
-                @endforelse
-
-                <!-- Always show RKAS example if needed for matches Figma -->
-                @if($pengajuans->where('status', 'menunggu')->count() > 0)
-                <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex justify-between items-center border-l-4 border-blue-500">
-                    <div>
-                        <h3 class="font-bold text-gray-800 text-sm mb-1">RKAS Tahun 2025</h3>
-                        <p class="text-xs text-gray-400 mb-2">Bendahara: <span class="text-gray-600 font-medium">Siti Nurhaliza</span></p>
-                        <p class="text-sm font-bold text-gray-800">Total: Rp 500.000.000</p>
-                    </div>
-                    <div class="flex flex-col items-end space-y-3">
-                        <span class="text-[10px] font-bold px-3 py-1 bg-blue-50 text-blue-600 rounded-full uppercase tracking-wider">Review</span>
-                        <button class="bg-blue-600 text-white px-4 py-2 rounded-xl text-[10px] font-bold shadow-lg shadow-blue-500/20">Tinjau Detail</button>
-                    </div>
+                <div>
+                    <p class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-0.5">Realisasi</p>
+                    <p class="text-2xl font-black text-gray-900">{{ $totalAnggaran > 0 ? round(($realisasi / $totalAnggaran) * 100) : 0 }}%</p>
                 </div>
+            </div>
+        </section>
+
+        <!-- MENU GRID -->
+        <section class="space-y-6">
+            <h2 class="text-gray-900 font-black text-lg tracking-tight uppercase px-2 bg-blue-100 w-fit rounded-md text-[10px] py-1">Menu Utama</h2>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <a href="/dashboard/kepsek/persetujuan" class="bg-white rounded-[2.5rem] p-10 card-premium flex flex-col items-center group">
+                    <div class="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-3 transition duration-500 shadow-xl shadow-blue-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <p class="text-xs font-black text-gray-900 text-center leading-tight">Persetujuan Pengeluaran</p>
+                </a>
+
+                <a href="#" class="bg-white rounded-[2.5rem] p-10 card-premium flex flex-col items-center group opacity-80 hover:opacity-100">
+                    <div class="w-16 h-16 rounded-2xl bg-emerald-500 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:-rotate-3 transition duration-500 shadow-xl shadow-emerald-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 17v-2a4 4 0 014-4h4m-4-6l4 4-4 4" />
+                        </svg>
+                    </div>
+                    <p class="text-xs font-black text-gray-900 text-center leading-tight">Laporan Keuangan</p>
+                </a>
+
+                <a href="/rkas/status" class="bg-white rounded-[2.5rem] p-10 card-premium flex flex-col items-center group opacity-80 hover:opacity-100">
+                    <div class="w-16 h-16 rounded-2xl bg-purple-500 flex items-center justify-center mb-4 group-hover:scale-110 transition duration-500 shadow-xl shadow-purple-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <p class="text-xs font-black text-gray-900 text-center leading-tight text-nowrap">Manajemen RKAS</p>
+                </a>
+
+                <a href="#" class="bg-white rounded-[2.5rem] p-10 card-premium flex flex-col items-center group opacity-80 hover:opacity-100">
+                    <div class="w-16 h-16 rounded-2xl bg-orange-500 flex items-center justify-center mb-4 group-hover:scale-110 transition duration-500 shadow-xl shadow-orange-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                    </div>
+                    <p class="text-xs font-black text-gray-900 text-center leading-tight">Histori Notifikasi</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- PENDING APPROVALS -->
+        <section class="pb-20">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-gray-900 font-black text-lg tracking-tight uppercase px-2 bg-amber-100 w-fit rounded-md text-[10px] py-1">Persetujuan Tertunda</h2>
+                <a href="/dashboard/kepsek/persetujuan" class="text-blue-600 text-sm font-black hover:underline underline-offset-4 decoration-2 transition-all">Lihat Semua →</a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @foreach($pengajuans->where('status', 'menunggu')->take(2) as $item)
+                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm card-premium space-y-4">
+                        <div class="flex justify-between items-start">
+                            <div class="space-y-1">
+                                <span class="bg-blue-50 text-blue-600 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-wider">Permintaan</span>
+                                <h3 class="font-bold text-gray-900 text-base mb-1">{{ Str::limit($item->judul, 30) }}</h3>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Pengaju: <span class="text-gray-900">{{ $item->user->name ?? '-' }}</span></p>
+                            </div>
+                            <span class="bg-amber-50 text-amber-600 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-sm">Review</span>
+                        </div>
+                        <div class="h-px bg-gray-100"></div>
+                        <div class="flex justify-between items-center">
+                            <p class="text-xl font-black text-gray-900">Rp {{ number_format($item->jumlah_dana, 0, ',', '.') }}</p>
+                            <a href="/dashboard/kepsek/persetujuan/pengajuan/{{ $item->id }}" class="bg-blue-600 text-white p-2.5 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                @endforeach
+
+                @foreach($rkas_list->take(2) as $rkas)
+                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm card-premium space-y-4 border-l-8 border-indigo-500">
+                        <div class="flex justify-between items-start">
+                            <div class="space-y-1">
+                                <span class="bg-purple-50 text-purple-600 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-wider">RKAS Plan</span>
+                                <h3 class="font-bold text-gray-900 text-base mb-1">RKAS Tahun {{ $rkas->tahun_ajaran }}</h3>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Oleh: <span class="text-gray-900">{{ $rkas->user->name ?? '-' }}</span></p>
+                            </div>
+                            <span class="bg-indigo-50 text-indigo-600 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-sm">Critical</span>
+                        </div>
+                        <div class="h-px bg-gray-50"></div>
+                        <div class="flex justify-between items-center">
+                            <p class="text-xl font-black text-gray-900">Rp {{ number_format($rkas->jumlah_dana, 0, ',', '.') }}</p>
+                            <a href="/dashboard/kepsek/persetujuan/rkas/{{ $rkas->id }}" class="bg-indigo-600 text-white p-2.5 rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                @endforeach
+
+                @if($menunggu == 0 && $rkas_menunggu == 0)
+                    <div class="col-span-1 md:col-span-2 text-center py-20 bg-white rounded-[3rem] border-2 border-dashed border-gray-100">
+                        <p class="text-gray-400 text-sm font-black uppercase tracking-widest">Semua Tugas Selesai ✨</p>
+                    </div>
                 @endif
             </div>
         </section>
@@ -227,9 +232,4 @@
     </main>
 
 </body>
-</html>
-
-
-</body>
-
 </html>

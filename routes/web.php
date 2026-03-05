@@ -74,10 +74,20 @@ Route::get('/dashboard/kepsek/persetujuan',
     [PengajuanController::class, 'persetujuan'])
     ->middleware('role:kepsek');
 
+Route::get('/dashboard/kepsek/persetujuan/{type}/{id}', 
+    [PengajuanController::class, 'persetujuanDetail'])
+    ->middleware('role:kepsek');
+
 Route::get('/civitas/riwayat', [PengajuanController::class, 'riwayat'])
     ->middleware('role:civitas');
 
-Route::get('/rkas', [RKASController::class, 'create'])
-    ->middleware('role:bendahara');
-Route::post('/rkas/store', [RKASController::class, 'store'])
-    ->middleware('role:bendahara');
+Route::get('/rkas/status', [RKASController::class, 'index'])->middleware('role:bendahara,kepsek');
+Route::get('/rkas/status/{id}', [RKASController::class, 'show'])->middleware('role:bendahara,kepsek');
+Route::get('/rkas', [RKASController::class, 'create'])->middleware('role:bendahara');
+Route::post('/rkas/store', [RKASController::class, 'store'])->middleware('role:bendahara');
+
+Route::post('/rkas/{id}/approve', [RKASController::class, 'approve'])
+    ->middleware('role:kepsek');
+
+Route::post('/rkas/{id}/reject', [RKASController::class, 'reject'])
+    ->middleware('role:kepsek');
