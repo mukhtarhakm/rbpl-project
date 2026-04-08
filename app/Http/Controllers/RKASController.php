@@ -67,7 +67,7 @@ class RKASController extends Controller
         $rkas->status = 'disetujui';
         $rkas->save();
 
-        return back()->with('success', 'RKAS berhasil disetujui');
+        return redirect('/dashboard/kepsek/persetujuan')->with('success', 'RKAS berhasil disetujui');
     }
 
     public function reject(Request $request, $id)
@@ -81,6 +81,6 @@ class RKASController extends Controller
         $rkas->alasan_penolakan = $request->alasan_penolakan;
         $rkas->save();
 
-        return back()->with('success', 'RKAS berhasil ditolak');
+        return redirect('/dashboard/kepsek/persetujuan')->with('success', 'RKAS berhasil ditolak');
     }
 }

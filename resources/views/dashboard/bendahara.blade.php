@@ -160,11 +160,11 @@
                 <div class="bg-white p-8 rounded-[2.5rem] shadow-sm card-premium flex items-center justify-between group">
                     <div class="flex items-center gap-6">
                         <div class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shadow-inner group-hover:scale-110 transition">
-                            <span class="font-black text-lg">7</span>
+                            <span class="font-black text-lg">{{ $pengajuans->count() }}</span>
                         </div>
                         <div>
                             <h3 class="font-bold text-gray-900 text-base">Pengajuan Cair</h3>
-                            <p class="text-xs text-gray-400 font-medium tracking-wide leading-relaxed">7 pengajuan siap dicairkan hari ini.</p>
+                            <p class="text-xs text-gray-400 font-medium tracking-wide leading-relaxed">{{ $pengajuans->count() }} pengajuan siap dicairkan hari ini.</p>
                         </div>
                     </div>
                     <a href="/pencairan" class="bg-blue-600 text-white p-3 rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-100 active:scale-90">

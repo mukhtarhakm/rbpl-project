@@ -42,7 +42,7 @@ class PengajuanController extends Controller
         $pengajuan->status = 'disetujui_kepsek';
         $pengajuan->save();
 
-        return back();
+        return redirect('/dashboard/kepsek/persetujuan')->with('success', 'Pengajuan berhasil disetujui');
     }
 
     public function reject(Request $request, $id)
@@ -56,7 +56,7 @@ class PengajuanController extends Controller
         $pengajuan->alasan_penolakan = $request->alasan_penolakan;
         $pengajuan->save();
 
-        return back();
+        return redirect('/dashboard/kepsek/persetujuan')->with('success', 'Pengajuan berhasil ditolak');
     }
 
     public function indexKepsek()
@@ -82,7 +82,27 @@ class PengajuanController extends Controller
         $pengajuan->status = 'dicairkan';
         $pengajuan->save();
 
-        return back();
+        return redirect('/pencairan')->with('success', 'Dana pengajuan berhasil dicairkan. Status telah diupdate.');
+    }
+
+    public function pencairanList()
+    {
+        $siap_cair = Pengajuan::where('status', 'disetujui_kepsek')
+            ->whereNull('tanggal_pencairan')
+            ->latest()
+            ->get();
+            
+        $sudah_cair = Pengajuan::whereIn('status', ['dicairkan', 'selesai'])
+            ->latest()
+            ->get();
+
+        return view('bendahara.pencairan', compact('siap_cair', 'sudah_cair'));
+    }
+
+    public function pencairanDetail($id)
+    {
+        $pengajuan = Pengajuan::findOrFail($id);
+        return view('bendahara.pencairan-detail', compact('pengajuan'));
     }
 
     public function uploadBukti(Request $request, $id)
