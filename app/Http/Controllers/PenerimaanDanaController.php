@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\PenerimaanDana;
+use App\Models\Pengajuan;
 
 class PenerimaanDanaController extends Controller
 {
@@ -35,5 +36,30 @@ class PenerimaanDanaController extends Controller
     public function create()
     {
         return view('bendahara.penerimaan-create');
+    }
+
+    public function transaksi()
+    {
+        $penerimaans = PenerimaanDana::all()->map(function($item) {
+            return [
+                'tanggal' => $item->tanggal_penerimaan,
+                'keterangan' => $item->sumber_dana . ' (' . $item->keterangan . ')',
+                'tipe' => 'masuk',
+                'jumlah' => $item->jumlah,
+            ];
+        });
+
+        $pengajuans = Pengajuan::whereIn('status', ['dicairkan', 'selesai'])->get()->map(function($item) {
+            return [
+                'tanggal' => $item->tanggal_pencairan ?? $item->updated_at,
+                'keterangan' => $item->judul,
+                'tipe' => 'keluar',
+                'jumlah' => $item->jumlah_dana,
+            ];
+        });
+
+        $semuaTransaksi = $penerimaans->concat($pengajuans)->sortByDesc('tanggal');
+
+        return view('bendahara.transaksi', compact('semuaTransaksi'));
     }
 }
