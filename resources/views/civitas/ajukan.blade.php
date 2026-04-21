@@ -46,13 +46,39 @@
             <div class="bg-white p-6 rounded-[2.5rem] shadow-sm input-card space-y-3">
                 <label class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     Judul Pengajuan
                 </label>
                 <input type="text" name="judul" 
                     class="w-full bg-gray-50/50 rounded-2xl p-4 outline-none border-none focus:ring-0 text-gray-900 font-bold placeholder:text-gray-300 transition-all"
                     placeholder="Contoh: Pembelian ATK Kelas" required>
+            </div>
+
+            <!-- PILIH KEGIATAN RKAS -->
+            <div class="bg-white p-6 rounded-[2.5rem] shadow-sm input-card space-y-3">
+                <label class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    Anggaran Kegiatan (RKAS {{ $rkas_aktif->tahun_ajaran ?? '-' }})
+                </label>
+                <input type="hidden" name="rkas_id" value="{{ $rkas_aktif->id ?? '' }}">
+                <select name="kegiatan_idx" 
+                    class="w-full bg-gray-50/50 rounded-2xl p-4 outline-none border-none focus:ring-2 focus:ring-blue-100 text-gray-900 font-bold transition-all appearance-none cursor-pointer"
+                    required>
+                    <option value="" disabled selected>--- Pilih Kategori Anggaran ---</option>
+                    @if($rkas_aktif && $rkas_aktif->kegiatan_list)
+                        @foreach($rkas_aktif->kegiatan_list as $idx => $kegiatan)
+                            {{-- Sembunyikan kategori yang hanya urusan Bendahara --}}
+                            @if(!Str::contains($kegiatan['name'], ['Gaji', 'Operasional']))
+                                <option value="{{ $idx }}">{{ $kegiatan['name'] }}</option>
+                            @endif
+                        @endforeach
+                    @else
+                        <option value="" disabled>Belum ada RKAS Aktif</option>
+                    @endif
+                </select>
             </div>
 
             <!-- DESKRIPSI -->

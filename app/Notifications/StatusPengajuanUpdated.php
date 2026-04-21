@@ -11,12 +11,12 @@ class StatusPengajuanUpdated extends Notification
 {
     use Queueable;
 
-    protected $pengajuan;
+    protected $item;
     protected $message;
 
-    public function __construct($pengajuan, $message)
+    public function __construct($item, $message)
     {
-        $this->pengajuan = $pengajuan;
+        $this->item = $item;
         $this->message = $message;
     }
 
@@ -27,10 +27,17 @@ class StatusPengajuanUpdated extends Notification
 
     public function toArray(object $notifiable): array
     {
+        // Deteksi tipe model untuk menentukan judul/ID
+        $type = ($this->item instanceof \App\Models\RKAS) ? 'RKAS' : 'Pengajuan';
+        $title = ($this->item instanceof \App\Models\RKAS) 
+                    ? 'RKAS ' . $this->item->tahun_ajaran 
+                    : $this->item->judul;
+
         return [
-            'pengajuan_id' => $this->pengajuan->id,
-            'judul' => $this->pengajuan->judul,
-            'status' => $this->pengajuan->status,
+            'item_id' => $this->item->id,
+            'type' => $type,
+            'title' => $title,
+            'status' => $this->item->status,
             'message' => $this->message,
         ];
     }

@@ -173,13 +173,24 @@
                     </button>
                 </div>
                 <div>
-                    <input type="text" name="activities[${activityCount}][name]" placeholder="Nama kegiatan" 
-                        class="w-full border-none bg-gray-50 rounded-xl p-3 focus:ring-1 focus:ring-blue-500 outline-none font-medium text-gray-800 placeholder-gray-400">
+                    <label class="text-[9px] font-black uppercase text-gray-400 tracking-tighter mb-1 block">Kategori Anggaran</label>
+                    <select name="activities[${activityCount}][name]" 
+                        class="w-full border-none bg-gray-50 rounded-xl p-3 focus:ring-1 focus:ring-blue-500 outline-none font-bold text-gray-800 appearance-none cursor-pointer">
+                        <option value="Sarana Prasarana">Sarana Prasarana</option>
+                        <option value="Buku ATK">Buku ATK</option>
+                        <option value="Kegiatan Siswa">Kegiatan Siswa</option>
+                        <option value="Gaji PTT/PTK">Gaji PTT/PTK (Rutin)</option>
+                        <option value="Biaya Operasional">Biaya Operasional (Rutin)</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
                 </div>
                 <div class="relative">
-                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">Rp</span>
-                    <input type="number" name="activities[${activityCount}][amount]" placeholder="Anggaran" oninput="calculateTotal()"
-                        class="activity-amount w-full border-none bg-gray-50 rounded-xl p-3 pl-10 focus:ring-1 focus:ring-blue-500 outline-none font-bold text-gray-800 placeholder-gray-400">
+                    <label class="text-[9px] font-black uppercase text-gray-400 tracking-tighter mb-1 block">Pagu Dana</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">Rp</span>
+                        <input type="number" name="activities[${activityCount}][amount]" placeholder="0" oninput="calculateTotal()"
+                            class="activity-amount w-full border-none bg-gray-50 rounded-xl p-3 pl-10 focus:ring-1 focus:ring-blue-500 outline-none font-black text-gray-800 placeholder-gray-400">
+                    </div>
                 </div>
             `;
             list.appendChild(item);

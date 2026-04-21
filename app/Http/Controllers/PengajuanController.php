@@ -5,12 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Pengajuan;
 use App\Models\RKAS;
+use App\Models\PenerimaanDana;
 use App\Models\User;
 use App\Notifications\StatusPengajuanUpdated;
 use Illuminate\Support\Facades\Auth;
 
 class PengajuanController extends Controller
 {
+    public function create()
+    {
+        $rkas_aktif = RKAS::where('status', 'disetujui')->latest()->first();
+        return view('civitas.ajukan', compact('rkas_aktif'));
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -18,17 +25,28 @@ class PengajuanController extends Controller
             'deskripsi' => 'required',
             'jumlah_dana' => 'required|numeric',
             'tanggal_dibutuhkan' => 'required|date',
+            'rkas_id' => 'nullable',
+            'kegiatan_idx' => 'nullable',
         ]);
 
-        Pengajuan::create([
-            'user_id' => Auth()->id(),
+        $pengajuan = Pengajuan::create([
+            'user_id' => Auth::id(),
+            'rkas_id' => $request->rkas_id,
+            'kegiatan_idx' => $request->kegiatan_idx,
             'judul' => $request->judul,
             'deskripsi' => $request->deskripsi,
             'jumlah_dana' => $request->jumlah_dana,
             'tanggal_dibutuhkan' => $request->tanggal_dibutuhkan,
+            'status' => 'menunggu',
         ]);
 
-        return back()->with('success', 'Pengajuan berhasil dikirim');
+        // Notifikasi ke semua Kepsek
+        $kepseks = \App\Models\User::where('role', 'kepsek')->get();
+        foreach ($kepseks as $kepsek) {
+            $kepsek->notify(new \App\Notifications\StatusPengajuanUpdated($pengajuan, 'Ada pengajuan dana baru dari ' . Auth::user()->name . ' (' . $pengajuan->judul . ') yang butuh persetujuan.'));
+        }
+
+        return redirect('/ajukan')->with('success', 'Pengajuan berhasil dikirim');
     }
 
     public function index()
@@ -53,8 +71,14 @@ class PengajuanController extends Controller
         $pengajuan->status = 'disetujui_kepsek';
         $pengajuan->save();
 
-        // Send Notification
+        // Notifikasi ke pembuat pengajuan (Civitas)
         $pengajuan->user->notify(new StatusPengajuanUpdated($pengajuan, 'Pengajuan dana Anda telah disetujui oleh Kepala Sekolah.'));
+
+        // Notifikasi ke semua Bendahara (biar mereka tahu ada yang siap dicairkan)
+        $bendaharas = User::where('role', 'bendahara')->get();
+        foreach ($bendaharas as $bendahara) {
+            $bendahara->notify(new StatusPengajuanUpdated($pengajuan, 'Ada pengajuan baru (' . $pengajuan->judul . ') yang disetujui Kepsek dan siap dicairkan.'));
+        }
 
         return redirect('/dashboard/kepsek/persetujuan')->with('success', 'Pengajuan berhasil disetujui');
     }
@@ -78,31 +102,94 @@ class PengajuanController extends Controller
 
     public function indexKepsek()
     {
-        $pengajuans = Pengajuan::all();
+        // 1. Tugas Menunggu (RKAS + Pengajuan)
+        $rkas_menunggu = RKAS::where('status', 'menunggu')->latest()->get();
+        $pengajuan_menunggu = Pengajuan::where('status', 'menunggu')->latest()->get();
+        $count_menunggu = $rkas_menunggu->count() + $pengajuan_menunggu->count();
+
+        // 2. Jumlah Pengajuan Disetujui (Kepsek Approved)
+        $jumlah_disetujui = Pengajuan::whereIn('status', ['disetujui_kepsek', 'dicairkan', 'selesai'])->count();
+
+        // 3. Total Pagu Anggaran (Dari RKAS Aktif)
+        $rkas_aktif = RKAS::where('status', 'disetujui')->latest()->first();
+        $total_pagu = $rkas_aktif ? $rkas_aktif->jumlah_dana : 0;
+
+        // 4. Realisasi Dana (Total yang sudah dicairkan/selesai)
+        $total_realisasi = Pengajuan::whereIn('status', ['dicairkan', 'selesai'])->sum('jumlah_dana');
+
+        // Untuk list bawah
+        $pengajuans = Pengajuan::latest()->get(); 
         $rkas_list = RKAS::where('status', 'menunggu')->get();
-        return view('dashboard.kepsek', compact('pengajuans', 'rkas_list'));
+
+        // Ambil Notifikasi
+        $notifications = auth()->user()->unreadNotifications;
+
+        return view('dashboard.kepsek', compact(
+            'pengajuans', 
+            'rkas_list', 
+            'count_menunggu', 
+            'jumlah_disetujui', 
+            'total_pagu', 
+            'total_realisasi',
+            'notifications'
+        ));
     }
 
     public function indexBendahara()
     {
-        $pengajuans = pengajuan::where('status', 'disetujui_kepsek')
+        $pengajuans = Pengajuan::where('status', 'disetujui_kepsek')
             ->whereNull('tanggal_pencairan')
             ->get();
 
-        return view('dashboard.bendahara', compact('pengajuans'));
+        $totalMasuk = PenerimaanDana::sum('jumlah');
+        $totalKeluar = Pengajuan::whereIn('status', ['dicairkan', 'selesai'])->sum('jumlah_dana');
+        $totalSaldo = $totalMasuk - $totalKeluar;
+
+        // Fetch notifications for Treasurer
+        $notifications = auth()->user()->unreadNotifications;
+
+        return view('dashboard.bendahara', compact('pengajuans', 'totalMasuk', 'totalKeluar', 'totalSaldo', 'notifications'));
     }
 
     public function cairkan($id)
     {
         $pengajuan = Pengajuan::findOrFail($id);
-        $pengajuan->tanggal_pencairan = now();
         $pengajuan->status = 'dicairkan';
+        $pengajuan->tanggal_pencairan = now();
         $pengajuan->save();
 
-        // Send Notification
-        $pengajuan->user->notify(new StatusPengajuanUpdated($pengajuan, 'Dana pengajuan Anda telah dicairkan oleh Bendahara.'));
+        // Notifikasi ke pembuat pengajuan
+        $user = $pengajuan->user;
+        $user->notify(new StatusPengajuanUpdated($pengajuan, 'Dana pengajuan Anda telah dicairkan oleh Bendahara.'));
 
-        return redirect('/pencairan')->with('success', 'Dana pengajuan berhasil dicairkan. Status telah diupdate.');
+        return redirect()->back()->with('success', 'Dana berhasil dicairkan');
+    }
+
+    public function realisasiLangsung(Request $request)
+    {
+        $request->validate([
+            'rkas_id' => 'required',
+            'kegiatan_idx' => 'required',
+            'jumlah' => 'required|numeric',
+            'keterangan' => 'required',
+        ]);
+
+        $rkas = RKAS::findOrFail($request->rkas_id);
+        $kegiatan = $rkas->kegiatan_list[$request->kegiatan_idx];
+
+        Pengajuan::create([
+            'user_id' => Auth::id(),
+            'rkas_id' => $request->rkas_id,
+            'kegiatan_idx' => $request->kegiatan_idx,
+            'judul' => 'Realisasi Langsung: ' . $kegiatan['name'],
+            'deskripsi' => $request->keterangan,
+            'jumlah_dana' => $request->jumlah,
+            'tanggal_dibutuhkan' => now(),
+            'tanggal_pencairan' => now(),
+            'status' => 'dicairkan', // Langsung cair
+        ]);
+
+        return redirect()->back()->with('success', 'Realisasi berhasil dicatat');
     }
 
     public function pencairanList()
@@ -140,6 +227,12 @@ class PengajuanController extends Controller
         $pengajuan->bukti_pengeluaran = $namafile;
         $pengajuan->status = 'selesai';
         $pengajuan->save();
+
+        // Notifikasi ke semua Bendahara
+        $bendaharas = User::where('role', 'bendahara')->get();
+        foreach ($bendaharas as $bendahara) {
+            $bendahara->notify(new StatusPengajuanUpdated($pengajuan, 'Bukti pengeluaran baru telah diupload untuk: ' . $pengajuan->judul));
+        }
 
         return redirect('/civitas/upload-bukti')->with('success_upload', 'Bukti pengeluaran berhasil diupload');
     }
@@ -202,5 +295,16 @@ class PengajuanController extends Controller
         auth()->user()->unreadNotifications->markAsRead();
 
         return view('civitas.notifications', compact('notifications'));
+    }
+
+    public function notificationHistory()
+    {
+        $user = auth()->user();
+        $notifications = $user->notifications; // Ambil semua (read + unread)
+        
+        // Tandai semua sebagai dibaca saat masuk ke halaman riwayat
+        $user->unreadNotifications->markAsRead();
+
+        return view('kepsek.notifikasi', compact('notifications'));
     }
 }

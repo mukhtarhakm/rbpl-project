@@ -19,6 +19,9 @@
         .progress-bar-glow {
             box-shadow: 0 0 12px rgba(37, 99, 235, 0.3);
         }
+        .progress-bar-glow-rose {
+            box-shadow: 0 0 12px rgba(225, 29, 72, 0.3);
+        }
     </style>
 </head>
 
@@ -57,8 +60,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
                     </svg>
                 </div>
-                <p class="text-xl font-black text-blue-600">68%</p>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Realisasi Aktif</p>
+                <p class="text-xl font-black {{ $realisasi_persen > 100 ? 'text-rose-600' : 'text-blue-600' }}">{{ $realisasi_persen }}%</p>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{{ $realisasi_persen > 100 ? 'Overbudget' : 'Realisasi Aktif' }}</p>
             </div>
 
             <div class="bg-white p-6 rounded-[2.5rem] card-premium flex flex-col gap-2">
@@ -67,7 +70,13 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                 </div>
-                <p class="text-xl font-black text-emerald-600">Rp {{ number_format($total_anggaran/1000000, 0) }}Jt</p>
+                <p class="text-xl font-black text-emerald-600">
+                    @if($total_anggaran >= 1000000000)
+                        {{ number_format($total_anggaran/1000000000, 1) }}M
+                    @else
+                        {{ number_format($total_anggaran/1000000, 1) }}Jt
+                    @endif
+                </p>
                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Anggaran Aktif</p>
             </div>
         </div>
@@ -79,8 +88,9 @@
             <div class="space-y-4">
                 @forelse($rkas_list as $item)
                     @php
-                        // Mock progress for now
-                        $progress = $item->status === 'disetujui' ? 68 : ($item->status === 'selesai' ? 97 : 0);
+                        // Calculate real progress for each RKAS if possible, 
+                        // for now we use the global progress for approved ones
+                        $progress = $item->status === 'disetujui' ? $realisasi_persen : ($item->status === 'selesai' ? 100 : 0);
                     @endphp
                     <a href="/rkas/status/{{ $item->id }}" class="bg-white rounded-[2.5rem] p-6 card-premium block space-y-4">
                         <div class="flex justify-between items-start">
@@ -92,7 +102,7 @@
                                 </div>
                                 <div class="space-y-0.5">
                                     <h3 class="font-bold text-gray-900">RKAS {{ $item->tahun_ajaran }}</h3>
-                                    <p class="text-[10px] text-gray-400 font-medium">Total: Rp {{ number_format($item->jumlah_dana/1000000, 0) }} Juta</p>
+                                    <p class="text-[10px] text-gray-400 font-medium">Total: Rp {{ number_format($item->jumlah_dana, 0, ',', '.') }}</p>
                                 </div>
                             </div>
                             <span class="text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-sm
@@ -109,10 +119,10 @@
                         <div class="space-y-2">
                             <div class="flex justify-between items-center text-[10px] font-bold">
                                 <span class="text-gray-400">Realisasi</span>
-                                <span class="text-blue-600">{{ $progress }}%</span>
+                                <span class="{{ $progress > 100 ? 'text-rose-600' : 'text-blue-600' }}">{{ $progress }}%</span>
                             </div>
                             <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-                                <div class="h-full bg-blue-600 rounded-full progress-bar-glow transition-all duration-1000" style="width: {{ $progress }}%"></div>
+                                <div class="h-full {{ $progress > 100 ? 'bg-rose-600 progress-bar-glow-rose' : 'bg-blue-600 progress-bar-glow' }} rounded-full transition-all duration-1000" style="width: {{ min($progress, 100) }}%"></div>
                             </div>
                         </div>
                         @else

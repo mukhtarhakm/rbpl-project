@@ -17,6 +17,12 @@
             transform: translateY(-4px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
+        .notification-dropdown {
+            display: none;
+        }
+        .notification-dropdown.active {
+            display: block;
+        }
     </style>
 </head>
 
@@ -29,12 +35,43 @@
             
             <div class="flex items-center space-x-6">
                 <!-- Notifications -->
-                <button class="relative p-2.5 bg-white/10 rounded-full hover:bg-white/20 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                    </svg>
-                    <span class="absolute top-0 right-0 h-3 w-3 bg-rose-500 border-2 border-blue-600 rounded-full"></span>
-                </button>
+                <div class="relative">
+                    <button id="notiBtn" class="relative p-2.5 bg-white/10 rounded-full hover:bg-white/20 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        @if($notifications->count() > 0)
+                            <span class="absolute -top-1 -right-1 h-5 w-5 bg-rose-500 border-2 border-blue-600 rounded-full flex items-center justify-center text-[8px] font-black">
+                                {{ $notifications->count() }}
+                            </span>
+                        @endif
+                    </button>
+
+                    <!-- Dropdown Notifikasi -->
+                    <div id="notiDropdown" class="notification-dropdown absolute right-0 mt-3 w-80 bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden z-[100]">
+                        <div class="p-5 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                            <h3 class="text-xs font-black text-gray-900 uppercase tracking-widest">Notifikasi Baru</h3>
+                            <span class="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">{{ $notifications->count() }}</span>
+                        </div>
+                        <div class="max-h-96 overflow-y-auto">
+                            @forelse($notifications as $notif)
+                                <div class="p-5 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 relative">
+                                    <p class="text-xs font-bold text-gray-800 mb-1 leading-relaxed">{{ $notif->data['message'] }}</p>
+                                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">{{ $notif->created_at->diffForHumans() }}</p>
+                                </div>
+                            @empty
+                                <div class="p-10 text-center space-y-3">
+                                    <div class="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto text-gray-300">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                        </svg>
+                                    </div>
+                                    <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest leading-loose">Tidak ada<br>notifikasi baru ✨</p>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Logout -->
                 <form action="/logout" method="POST" class="inline">
@@ -76,7 +113,15 @@
                 </div>
                 <div>
                     <p class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-0.5">Total Saldo</p>
-                    <p class="text-2xl font-black text-gray-900">Rp {{ number_format($totalSaldo ?? 90000000) }}</p>
+                    <p class="text-2xl font-black text-gray-900">
+                        @if($totalSaldo >= 1000000000)
+                            {{ number_format($totalSaldo/1000000000, 1) }}M
+                        @elseif($totalSaldo >= 1000000)
+                            {{ number_format($totalSaldo/1000000, 1) }}Jt
+                        @else
+                            Rp {{ number_format($totalSaldo, 0, ',', '.') }}
+                        @endif
+                    </p>
                 </div>
             </div>
 
@@ -88,7 +133,15 @@
                 </div>
                 <div>
                     <p class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-0.5">Dana Masuk</p>
-                    <p class="text-2xl font-black text-emerald-600">Rp {{ number_format($totalMasuk ?? 50000) }}</p>
+                    <p class="text-2xl font-black text-emerald-600">
+                        @if($totalMasuk >= 1000000000)
+                            {{ number_format($totalMasuk/1000000000, 1) }}M
+                        @elseif($totalMasuk >= 1000000)
+                            {{ number_format($totalMasuk/1000000, 1) }}Jt
+                        @else
+                            Rp {{ number_format($totalMasuk, 0, ',', '.') }}
+                        @endif
+                    </p>
                 </div>
             </div>
 
@@ -100,7 +153,15 @@
                 </div>
                 <div>
                     <p class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-0.5">Dana Keluar</p>
-                    <p class="text-2xl font-black text-rose-600">Rp {{ number_format($totalKeluar ?? 32500) }}</p>
+                    <p class="text-2xl font-black text-rose-600">
+                        @if($totalKeluar >= 1000000000)
+                            {{ number_format($totalKeluar/1000000000, 1) }}M
+                        @elseif($totalKeluar >= 1000000)
+                            {{ number_format($totalKeluar/1000000, 1) }}Jt
+                        @else
+                            Rp {{ number_format($totalKeluar, 0, ',', '.') }}
+                        @endif
+                    </p>
                 </div>
             </div>
         </section>
@@ -174,47 +235,101 @@
                     </a>
                 </div>
 
-                <!-- Action Case 2 -->
+                <!-- Action Case 2 (Dynamic) -->
                 <div class="bg-white p-8 rounded-[2.5rem] shadow-sm card-premium flex items-center justify-between group">
+                    @php
+                        $rkas_draft = \App\Models\RKAS::where('status', 'menunggu')->count();
+                    @endphp
                     <div class="flex items-center gap-6">
-                        <div class="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-inner group-hover:scale-110 transition">
+                        <div class="w-14 h-14 rounded-full {{ $rkas_draft > 0 ? 'bg-orange-50 text-orange-600' : 'bg-emerald-50 text-emerald-600' }} flex items-center justify-center shadow-inner group-hover:scale-110 transition">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                         </div>
                         <div>
-                            <h3 class="font-bold text-gray-900 text-base">Dana BOS Triwulan 1</h3>
-                            <p class="text-xs text-gray-400 font-medium tracking-wide leading-relaxed">Input penerimaan anggaran segera.</p>
+                            <h3 class="font-bold text-gray-900 text-base">Status RKAS</h3>
+                            <p class="text-xs text-gray-400 font-medium tracking-wide leading-relaxed">
+                                @if($rkas_draft > 0)
+                                    Ada {{ $rkas_draft }} RKAS menunggu persetujuan Kepsek.
+                                @else
+                                    Seluruh RKAS sudah terverifikasi dengan baik.
+                                @endif
+                            </p>
                         </div>
                     </div>
-                    <a href="/penerimaan" class="bg-emerald-600 text-white p-3 rounded-2xl hover:bg-emerald-700 transition shadow-lg shadow-emerald-100 active:scale-90">
+                    <a href="/rkas/status" class="bg-orange-500 text-white p-3 rounded-2xl hover:bg-orange-600 transition shadow-lg shadow-orange-100 active:scale-90">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
                     </a>
                 </div>
             </div>
+        </section>
 
-            <!-- Notifikasi Quick Access -->
-            <div class="mt-10 bg-white p-6 rounded-[2.5rem] shadow-sm card-premium flex items-center justify-between group cursor-pointer">
-                <div class="flex items-center gap-6">
-                    <div class="w-12 h-12 rounded-2xl bg-rose-500 flex items-center justify-center text-white shadow-lg shadow-rose-200 group-hover:rotate-12 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
+        <!-- NOTIFIKASI & AKTIVITAS TERBARU -->
+        <section class="pb-32">
+            <div class="flex justify-between items-center mb-8 px-2">
+                <div>
+                    <h2 class="text-gray-900 font-black text-xl tracking-tight leading-none mb-1">Notifikasi & Aktivitas</h2>
+                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Update terbaru sistem hari ini</p>
+                </div>
+                <button class="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:text-blue-700 transition">Lihat Semua</button>
+            </div>
+
+            <div class="bg-white rounded-[3rem] shadow-sm border border-gray-100 overflow-hidden">
+                @forelse($notifications as $notif)
+                    <div class="p-8 flex items-start gap-6 border-b border-gray-50 hover:bg-gray-50/50 transition-all group {{ $loop->last ? 'border-b-0' : '' }}">
+                        <div class="w-12 h-12 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-lg transition group-hover:scale-110
+                            {{ $notif->data['type'] == 'RKAS' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600' }}">
+                            @if($notif->data['type'] == 'RKAS')
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            @else
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            @endif
+                        </div>
+                        <div class="flex-1 space-y-1">
+                            <div class="flex justify-between items-start">
+                                <h4 class="font-bold text-gray-900 text-sm tracking-tight">{{ $notif->data['title'] }}</h4>
+                                <span class="text-[10px] text-gray-400 font-bold tracking-tighter">{{ $notif->created_at->diffForHumans() }}</span>
+                            </div>
+                            <p class="text-xs text-gray-500 font-medium leading-relaxed">{{ $notif->data['message'] }}</p>
+                        </div>
+                        <div class="w-2 h-2 rounded-full bg-blue-500 shadow-lg shadow-blue-200 mt-2"></div>
                     </div>
-                    <span class="text-sm font-black text-gray-900 uppercase tracking-widest">Lihat Semua Notifikasi Pasif</span>
-                </div>
-                <div class="flex items-center gap-3">
-                    <span class="bg-rose-500 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-md">5 Pesan</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300 group-hover:text-gray-900 transition translate-x-0 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 5l7 7-7 7" />
-                    </svg>
-                </div>
+                @empty
+                    <div class="p-20 text-center space-y-4">
+                        <div class="w-20 h-20 bg-gray-50 rounded-[2rem] flex items-center justify-center mx-auto text-gray-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                        </div>
+                        <p class="text-gray-400 text-xs font-bold uppercase tracking-widest">Tidak ada notifikasi baru</p>
+                    </div>
+                @endforelse
             </div>
         </section>
 
-    </main>
+    <script>
+        // Notification Toggle
+        const notiBtn = document.getElementById('notiBtn');
+        const notiDropdown = document.getElementById('notiDropdown');
 
+        if (notiBtn && notiDropdown) {
+            notiBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                notiDropdown.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!notiDropdown.contains(e.target) && e.target !== notiBtn) {
+                    notiDropdown.classList.remove('active');
+                }
+            });
+        }
+    </script>
 </body>
 </html>

@@ -17,6 +17,12 @@
             transform: translateY(-4px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
+        .notification-dropdown {
+            display: none;
+        }
+        .notification-dropdown.active {
+            display: block;
+        }
     </style>
 </head>
 
@@ -29,12 +35,46 @@
             
             <div class="flex items-center space-x-6">
                 <!-- Notifications -->
-                <button class="relative p-2.5 bg-white/10 rounded-full hover:bg-white/20 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                    </svg>
-                    <span class="absolute top-0 right-0 h-3 w-3 bg-rose-500 border-2 border-blue-600 rounded-full"></span>
-                </button>
+                <div class="relative">
+                    <button id="notiBtn" class="relative p-2.5 bg-white/10 rounded-full hover:bg-white/20 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        @if($notifications->count() > 0)
+                            <span class="absolute -top-1 -right-1 h-5 w-5 bg-rose-500 border-2 border-blue-600 rounded-full flex items-center justify-center text-[8px] font-black">
+                                {{ $notifications->count() }}
+                            </span>
+                        @endif
+                    </button>
+
+                    <!-- Dropdown Notifikasi -->
+                    <div id="notiDropdown" class="notification-dropdown absolute right-0 mt-4 w-80 bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden z-[9999]">
+                        <div class="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                            <h3 class="text-xs font-black text-gray-900 uppercase tracking-widest">Tugas Baru</h3>
+                            <span class="text-[10px] bg-blue-100 text-blue-600 px-2.5 py-1 rounded-full font-bold">{{ $notifications->count() }} Permintaan</span>
+                        </div>
+                        <div class="max-h-96 overflow-y-auto">
+                            @forelse($notifications as $notif)
+                                <div class="p-6 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 relative">
+                                    <p class="text-xs font-bold text-gray-800 mb-1 leading-relaxed">{{ $notif->data['message'] }}</p>
+                                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">{{ $notif->created_at->diffForHumans() }}</p>
+                                </div>
+                            @empty
+                                <div class="p-12 text-center space-y-3">
+                                    <div class="w-16 h-16 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto text-gray-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                        </svg>
+                                    </div>
+                                    <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest leading-loose text-center">Belum ada<br>tugas baru terjadwal ✨</p>
+                                </div>
+                            @endforelse
+                        </div>
+                        <a href="/dashboard/kepsek/notifikasi" class="block w-full py-5 text-center text-[10px] font-black uppercase text-blue-600 hover:bg-blue-600 hover:text-white transition-all border-t border-gray-50 tracking-[0.2em] relative z-[9999] pointer-events-auto">
+                            Lihat Semua Riwayat
+                        </a>
+                    </div>
+                </div>
 
                 <!-- Logout -->
                 <form action="/logout" method="POST" class="inline">
@@ -68,14 +108,6 @@
         </section>
 
         <!-- STATISTIK PILLS -->
-        @php
-            $menunggu = $pengajuans->where('status', 'menunggu')->count();
-            $rkas_menunggu = $rkas_list->count();
-            $disetujui = $pengajuans->where('status', 'disetujui_kepsek')->count();
-            $totalAnggaran = $pengajuans->sum('jumlah_dana');
-            $realisasi = $pengajuans->where('status', 'disetujui')->sum('jumlah_dana');
-        @endphp
-
         <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div class="bg-white rounded-[2rem] p-6 card-premium flex items-center gap-5">
                 <div class="bg-amber-100 p-4 rounded-2xl text-amber-600">
@@ -85,7 +117,7 @@
                 </div>
                 <div>
                     <p class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-0.5">Menunggu</p>
-                    <p class="text-2xl font-black text-gray-900">{{ $menunggu + $rkas_menunggu }}</p>
+                    <p class="text-2xl font-black text-gray-900">{{ $count_menunggu }}</p>
                 </div>
             </div>
 
@@ -97,7 +129,7 @@
                 </div>
                 <div>
                     <p class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-0.5">Disetujui</p>
-                    <p class="text-2xl font-black text-gray-900">{{ $disetujui }}</p>
+                    <p class="text-2xl font-black text-gray-900">{{ $jumlah_disetujui }}</p>
                 </div>
             </div>
 
@@ -108,12 +140,18 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-0.5">Total</p>
-                    <p class="text-2xl font-black text-gray-900">{{ number_format($totalAnggaran/1000000, 1) }}M</p>
+                    <p class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-0.5">Total Pagu</p>
+                    <p class="text-2xl font-black text-gray-900">
+                        @if($total_pagu >= 1000000000)
+                            {{ number_format($total_pagu / 1000000000, 1) }}M
+                        @else
+                            {{ number_format($total_pagu / 1000000, 1) }}Jt
+                        @endif
+                    </p>
                 </div>
             </div>
 
-            <div class="bg-white rounded-[2rem] p-6 card-premium flex items-center gap-5">
+            <div class="bg-white rounded-[2rem] p-6 card-premium flex items-center gap-5 border-l-4 border-purple-500">
                 <div class="bg-purple-100 p-4 rounded-2xl text-purple-600">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -121,7 +159,13 @@
                 </div>
                 <div>
                     <p class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-0.5">Realisasi</p>
-                    <p class="text-2xl font-black text-gray-900">{{ $totalAnggaran > 0 ? round(($realisasi / $totalAnggaran) * 100) : 0 }}%</p>
+                    <p class="text-2xl font-black text-gray-900">
+                        @if($total_realisasi >= 1000000000)
+                            {{ number_format($total_realisasi / 1000000000, 1) }}M
+                        @else
+                            {{ number_format($total_realisasi / 1000000, 1) }}Jt
+                        @endif
+                    </p>
                 </div>
             </div>
         </section>
@@ -140,7 +184,7 @@
                     <p class="text-xs font-black text-gray-900 text-center leading-tight">Persetujuan Pengeluaran</p>
                 </a>
 
-                <a href="#" class="bg-white rounded-[2.5rem] p-10 card-premium flex flex-col items-center group opacity-80 hover:opacity-100">
+                <a href="/dashboard/kepsek/laporan" class="bg-white rounded-[2.5rem] p-10 card-premium flex flex-col items-center group">
                     <div class="w-16 h-16 rounded-2xl bg-emerald-500 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:-rotate-3 transition duration-500 shadow-xl shadow-emerald-100">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 17v-2a4 4 0 014-4h4m-4-6l4 4-4 4" />
@@ -158,7 +202,7 @@
                     <p class="text-xs font-black text-gray-900 text-center leading-tight text-nowrap">Manajemen RKAS</p>
                 </a>
 
-                <a href="#" class="bg-white rounded-[2.5rem] p-10 card-premium flex flex-col items-center group opacity-80 hover:opacity-100">
+                <a href="/dashboard/kepsek/notifikasi" class="bg-white rounded-[2.5rem] p-10 card-premium flex flex-col items-center group">
                     <div class="w-16 h-16 rounded-2xl bg-orange-500 flex items-center justify-center mb-4 group-hover:scale-110 transition duration-500 shadow-xl shadow-orange-100">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -221,7 +265,7 @@
                     </div>
                 @endforeach
 
-                @if($menunggu == 0 && $rkas_menunggu == 0)
+                @if($count_menunggu == 0)
                     <div class="col-span-1 md:col-span-2 text-center py-20 bg-white rounded-[3rem] border-2 border-dashed border-gray-100">
                         <p class="text-gray-400 text-sm font-black uppercase tracking-widest">Semua Tugas Selesai ✨</p>
                     </div>
@@ -230,6 +274,25 @@
         </section>
 
     </main>
+
+    <script>
+        // Notification Toggle
+        const notiBtn = document.getElementById('notiBtn');
+        const notiDropdown = document.getElementById('notiDropdown');
+
+        if (notiBtn && notiDropdown) {
+            notiBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                notiDropdown.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!notiDropdown.contains(e.target) && e.target !== notiBtn) {
+                    notiDropdown.classList.remove('active');
+                }
+            });
+        }
+    </script>
 
 </body>
 </html>

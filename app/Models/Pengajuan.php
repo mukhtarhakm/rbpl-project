@@ -12,15 +12,28 @@ class Pengajuan extends Model
 
     protected $fillable = [
         'user_id',
+        'rkas_id',
+        'kegiatan_idx',
         'judul',
         'deskripsi',
         'jumlah_dana',
         'tanggal_dibutuhkan',
         'status',
+        'tanggal_pencairan',
+        'bukti_pencairan',
+    ];
+
+    protected $casts = [
+        'tanggal_pencairan' => 'datetime',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function rkas()
+    {
+        return $this->belongsTo(RKAS::class, 'rkas_id');
     }
 }

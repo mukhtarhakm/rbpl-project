@@ -109,14 +109,25 @@
             <h3 class="text-xs font-black text-gray-900 uppercase tracking-widest px-2">Rincian Kegiatan</h3>
             
             @if($rkas->kegiatan_list)
-                @foreach($rkas->kegiatan_list as $kegiatan)
+                @foreach($rkas->kegiatan_list as $index => $kegiatan)
                     @php 
                         $k_amount = $kegiatan['amount'] ?? 0;
                         $k_realisasi = $kegiatan['realisasi'] ?? 0;
                         $k_percent = $k_amount > 0 ? round(($k_realisasi / $k_amount) * 100, 1) : 0;
                     @endphp
                     <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 card-premium space-y-4">
-                        <h4 class="font-bold text-gray-900 text-sm">{{ $kegiatan['name'] ?? 'Kegiatan' }}</h4>
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-bold text-gray-900 text-sm">{{ $kegiatan['name'] ?? 'Kegiatan' }}</h4>
+                            @if(auth()->user()->role == 'bendahara' && $rkas->status == 'disetujui')
+                            <button onclick="openRealizationModal('{{ $kegiatan['name'] }}', {{ $index }})" 
+                                class="bg-emerald-50 text-emerald-600 p-2 rounded-xl hover:bg-emerald-100 transition active:scale-90">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                                </svg>
+                            </button>
+                            @endif
+                        </div>
+                        
                         <div class="space-y-2">
                             <div class="flex justify-between text-[11px] font-medium text-gray-400">
                                 <span>Anggaran:</span>
@@ -129,9 +140,11 @@
                         </div>
                         <div class="space-y-1.5">
                             <div class="h-1.5 w-full bg-gray-50 rounded-full overflow-hidden">
-                                <div class="h-full bg-emerald-500 rounded-full" style="width: {{ $k_percent }}%"></div>
+                                <div class="h-full bg-emerald-500 rounded-full" style="width: {{ min($k_percent, 100) }}%"></div>
                             </div>
-                            <p class="text-right text-[10px] font-black text-gray-300 tracking-tighter">{{ $k_percent }}%</p>
+                            <p class="text-right text-[10px] font-black {{ $k_percent > 100 ? 'text-rose-500' : 'text-gray-300' }} tracking-tighter">
+                                {{ $k_percent }}% {{ $k_percent > 100 ? '(Overbudget)' : '' }}
+                            </p>
                         </div>
                     </div>
                 @endforeach
@@ -140,5 +153,56 @@
 
     </main>
 
-</body>
-</html>
+    <!-- MODAL REALISASI (BENDAHARA ONLY) -->
+    <div id="realizationModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center px-6">
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" onclick="closeRealizationModal()"></div>
+        <div class="bg-white w-full max-w-sm rounded-[3rem] p-8 shadow-2xl relative z-10 animate-in zoom-in-95 duration-300">
+            <h3 class="text-xl font-black text-gray-900 mb-2">Lapor Realisasi</h3>
+            <p id="activityName" class="text-sm text-gray-400 font-medium mb-6 uppercase tracking-wider"></p>
+
+            <form action="/realisasi-langsung" method="POST" class="space-y-6">
+                @csrf
+                <input type="hidden" name="rkas_id" value="{{ $rkas->id }}">
+                <input type="hidden" name="kegiatan_idx" id="modalKegiatanIdx">
+                
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase text-gray-400 tracking-widest">Jumlah Dana Cair</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-gray-400">Rp</span>
+                        <input type="number" name="jumlah" required
+                            class="w-full bg-gray-50 rounded-2xl p-4 pl-12 outline-none focus:ring-2 focus:ring-emerald-500 font-black text-xl text-gray-900">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase text-gray-400 tracking-widest">Keterangan / Keperluan</label>
+                    <textarea name="keterangan" required rows="3"
+                        class="w-full bg-gray-50 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-sm text-gray-900 resize-none"
+                        placeholder="Contoh: Pembayaran gaji bulan April..."></textarea>
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeRealizationModal()" 
+                        class="flex-1 bg-gray-100 text-gray-900 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-gray-200 transition">
+                        Batal
+                    </button>
+                    <button type="submit" 
+                        class="flex-1 bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-emerald-700 shadow-lg shadow-emerald-100 transition">
+                        Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openRealizationModal(name, index) {
+            document.getElementById('activityName').innerText = name;
+            document.getElementById('modalKegiatanIdx').value = index;
+            document.getElementById('realizationModal').classList.remove('hidden');
+        }
+
+        function closeRealizationModal() {
+            document.getElementById('realizationModal').classList.add('hidden');
+        }
+    </script>
