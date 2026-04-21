@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Pengajuan;
 use App\Models\RKAS;
+use App\Models\User;
+use App\Notifications\StatusPengajuanUpdated;
 use Illuminate\Support\Facades\Auth;
 
 class PengajuanController extends Controller
@@ -31,16 +33,28 @@ class PengajuanController extends Controller
 
     public function index()
     {
-            $pengajuans = Pengajuan::where('user_id', Auth()->id())->get();
+        $user = Auth::user();
+        $pengajuans = Pengajuan::where('user_id', $user->id)->latest()->get();
 
-            return view('dashboard.civitas', compact('pengajuans'));
+        // Calculate statistics
+        $aktif = $pengajuans->where('status', 'menunggu')->count();
+        $disetujui = $pengajuans->whereIn('status', ['disetujui_kepsek', 'dicairkan', 'selesai'])->count();
+        $totalDana = $pengajuans->whereIn('status', ['disetujui_kepsek', 'dicairkan', 'selesai'])->sum('jumlah_dana');
+
+        // Fetch notifications
+        $notifications = $user->unreadNotifications;
+
+        return view('dashboard.civitas', compact('pengajuans', 'aktif', 'disetujui', 'totalDana', 'notifications'));
     }
 
     public function approve($id)
     {
-        $pengajuan = pengajuan::findOrFail($id);
+        $pengajuan = Pengajuan::findOrFail($id);
         $pengajuan->status = 'disetujui_kepsek';
         $pengajuan->save();
+
+        // Send Notification
+        $pengajuan->user->notify(new StatusPengajuanUpdated($pengajuan, 'Pengajuan dana Anda telah disetujui oleh Kepala Sekolah.'));
 
         return redirect('/dashboard/kepsek/persetujuan')->with('success', 'Pengajuan berhasil disetujui');
     }
@@ -55,6 +69,9 @@ class PengajuanController extends Controller
         $pengajuan->status = 'ditolak';
         $pengajuan->alasan_penolakan = $request->alasan_penolakan;
         $pengajuan->save();
+
+        // Send Notification
+        $pengajuan->user->notify(new StatusPengajuanUpdated($pengajuan, 'Pengajuan dana Anda ditolak: ' . $request->alasan_penolakan));
 
         return redirect('/dashboard/kepsek/persetujuan')->with('success', 'Pengajuan berhasil ditolak');
     }
@@ -77,10 +94,13 @@ class PengajuanController extends Controller
 
     public function cairkan($id)
     {
-        $pengajuan = pengajuan::findOrFail($id);
+        $pengajuan = Pengajuan::findOrFail($id);
         $pengajuan->tanggal_pencairan = now();
         $pengajuan->status = 'dicairkan';
         $pengajuan->save();
+
+        // Send Notification
+        $pengajuan->user->notify(new StatusPengajuanUpdated($pengajuan, 'Dana pengajuan Anda telah dicairkan oleh Bendahara.'));
 
         return redirect('/pencairan')->with('success', 'Dana pengajuan berhasil dicairkan. Status telah diupdate.');
     }
@@ -121,7 +141,26 @@ class PengajuanController extends Controller
         $pengajuan->status = 'selesai';
         $pengajuan->save();
 
-        return back()->with('success', 'Bukti pengeluaran berhasil diupload');
+        return redirect('/civitas/upload-bukti')->with('success_upload', 'Bukti pengeluaran berhasil diupload');
+    }
+
+    public function uploadBuktiList()
+    {
+        $pengajuans = Pengajuan::where('user_id', auth()->id())
+            ->where('status', 'dicairkan')
+            ->latest()
+            ->get();
+
+        return view('civitas.upload-list', compact('pengajuans'));
+    }
+
+    public function uploadBuktiForm($id)
+    {
+        $pengajuan = Pengajuan::where('user_id', auth()->id())
+            ->where('id', $id)
+            ->firstOrFail();
+
+        return view('civitas.upload-form', compact('pengajuan'));
     }
 
     public function persetujuan()
@@ -155,5 +194,13 @@ class PengajuanController extends Controller
         }
 
         return view('kepsek.persetujuan-detail', compact('item', 'type'));
+    }
+
+    public function notifications()
+    {
+        $notifications = auth()->user()->notifications()->latest()->get();
+        auth()->user()->unreadNotifications->markAsRead();
+
+        return view('civitas.notifications', compact('notifications'));
     }
 }

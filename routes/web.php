@@ -67,6 +67,12 @@ Route::get('/pencairan/detail/{id}', [PengajuanController::class, 'pencairanDeta
 Route::post('/pengajuan/{id}/upload-bukti', [PengajuanController::class, 'uploadBukti'])
     ->middleware('role:civitas');
 
+Route::get('/civitas/upload-bukti', [PengajuanController::class, 'uploadBuktiList'])
+    ->middleware('role:civitas');
+
+Route::get('/civitas/upload-bukti/{id}', [PengajuanController::class, 'uploadBuktiForm'])
+    ->middleware('role:civitas');
+
 Route::get('/penerimaan', [PenerimaanDanaController::class, 'index'])
     ->middleware('role:bendahara');
 
@@ -85,6 +91,9 @@ Route::get('/dashboard/kepsek/persetujuan/{type}/{id}',
     ->middleware('role:kepsek');
 
 Route::get('/civitas/riwayat', [PengajuanController::class, 'riwayat'])
+    ->middleware('role:civitas');
+
+Route::get('/civitas/notifications', [PengajuanController::class, 'notifications'])
     ->middleware('role:civitas');
 
 Route::get('/rkas/status', [RKASController::class, 'index'])->middleware('role:bendahara,kepsek');
