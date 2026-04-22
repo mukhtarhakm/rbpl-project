@@ -91,6 +91,25 @@
 
     <main class="max-w-5xl mx-auto px-6 mt-10 space-y-10">
 
+        <!-- ALERTS -->
+        @if(session('success'))
+            <div class="bg-emerald-50 border border-emerald-100 text-emerald-800 px-6 py-4 rounded-2xl flex items-center gap-3 animate-pulse">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-sm font-bold">{{ session('success') }}</span>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="bg-rose-50 border border-rose-100 text-rose-800 px-6 py-4 rounded-2xl flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-sm font-bold">{{ session('error') }}</span>
+            </div>
+        @endif
+
         <!-- WELCOME CARD -->
         <section class="bg-gradient-to-br from-[#4F46E5] to-[#7C3AED] text-white p-10 rounded-[3rem] shadow-2xl relative overflow-hidden">
             <div class="relative z-10 space-y-2">
@@ -140,7 +159,7 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-0.5">Total Pagu</p>
+                    <p class="text-[10px] uppercase tracking-widest font-black text-gray-400 mb-0.5">Total Anggaran</p>
                     <p class="text-2xl font-black text-gray-900">
                         @if($total_pagu >= 1000000000)
                             {{ number_format($total_pagu / 1000000000, 1) }}M

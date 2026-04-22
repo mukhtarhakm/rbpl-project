@@ -31,6 +31,27 @@
             Input data penerimaan dana dari pemerintah atau sumber lain
         </div>
 
+        <!-- ERROR HANDLING -->
+        @if(session('error'))
+            <div class="bg-rose-50 border border-rose-100 text-rose-800 px-6 py-4 rounded-2xl flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-sm font-bold">{{ session('error') }}</span>
+            </div>
+        @endif
+
+        @if($errors->any())
+            <div class="bg-rose-50 border border-rose-100 text-rose-800 px-6 py-4 rounded-2xl space-y-1">
+                @foreach($errors->all() as $error)
+                    <p class="text-xs font-bold flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 bg-rose-500 rounded-full"></span>
+                        {{ $error }}
+                    </p>
+                @endforeach
+            </div>
+        @endif
+
         <!-- FORM -->
         <form action="/penerimaan/store" method="POST" class="space-y-4">
             @csrf
@@ -60,7 +81,7 @@
                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">Rp</span>
                     <input type="number" name="jumlah"
                         class="w-full border-none bg-gray-50 rounded-xl p-3 pl-10 focus:ring-2 focus:ring-green-500 outline-none text-gray-800 font-bold placeholder-gray-400 transition-all"
-                        placeholder="0" required>
+                        placeholder="0" min="1" required>
                 </div>
             </div>
 

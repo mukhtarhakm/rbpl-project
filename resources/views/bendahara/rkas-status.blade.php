@@ -88,9 +88,8 @@
             <div class="space-y-4">
                 @forelse($rkas_list as $item)
                     @php
-                        // Calculate real progress for each RKAS if possible, 
-                        // for now we use the global progress for approved ones
-                        $progress = $item->status === 'disetujui' ? $realisasi_persen : ($item->status === 'selesai' ? 100 : 0);
+                        // Calculate real progress for each RKAS independently
+                        $progress = $item->getRealisasiPersen();
                     @endphp
                     <a href="/rkas/status/{{ $item->id }}" class="bg-white rounded-[2.5rem] p-6 card-premium block space-y-4">
                         <div class="flex justify-between items-start">

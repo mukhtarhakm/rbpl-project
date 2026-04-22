@@ -20,7 +20,7 @@ class Pengajuan extends Model
         'tanggal_dibutuhkan',
         'status',
         'tanggal_pencairan',
-        'bukti_pencairan',
+        'bukti_pengeluaran',
     ];
 
     protected $casts = [

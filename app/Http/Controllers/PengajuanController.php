@@ -23,11 +23,32 @@ class PengajuanController extends Controller
         $request->validate([
             'judul' => 'required',
             'deskripsi' => 'required',
-            'jumlah_dana' => 'required|numeric',
+            'jumlah_dana' => 'required|numeric|min:1',
             'tanggal_dibutuhkan' => 'required|date',
-            'rkas_id' => 'nullable',
+            'rkas_id' => 'nullable|exists:rkas,id',
             'kegiatan_idx' => 'nullable',
         ]);
+
+        // Cek sisa anggaran di RKAS jika ada rkas_id
+        if ($request->rkas_id && $request->kegiatan_idx !== null) {
+            $rkas = RKAS::findOrFail($request->rkas_id);
+            
+            // Pastikan RKAS sudah disetujui
+            if ($rkas->status !== 'disetujui') {
+                return back()->withErrors(['rkas_id' => 'Hanya bisa mengajukan dana untuk RKAS yang sudah disetujui.'])->withInput();
+            }
+
+            // Pastikan kegiatan_idx valid
+            if (!isset($rkas->kegiatan_list[$request->kegiatan_idx])) {
+                return back()->withErrors(['kegiatan_idx' => 'Kategori kegiatan tidak valid.'])->withInput();
+            }
+
+            $remaining = $rkas->getRemainingBudget($request->kegiatan_idx);
+            
+            if ($request->jumlah_dana > $remaining) {
+                return back()->withErrors(['jumlah_dana' => 'Jumlah pengajuan melebihi sisa anggaran (Sisa: Rp ' . number_format($remaining, 0, ',', '.') . ')'])->withInput();
+            }
+        }
 
         $pengajuan = Pengajuan::create([
             'user_id' => Auth::id(),
@@ -68,6 +89,11 @@ class PengajuanController extends Controller
     public function approve($id)
     {
         $pengajuan = Pengajuan::findOrFail($id);
+        
+        if ($pengajuan->status !== 'menunggu') {
+            return redirect()->back()->with('error', 'Hanya pengajuan berstatus menunggu yang bisa disetujui.');
+        }
+
         $pengajuan->status = 'disetujui_kepsek';
         $pengajuan->save();
 
@@ -154,13 +180,26 @@ class PengajuanController extends Controller
     public function cairkan($id)
     {
         $pengajuan = Pengajuan::findOrFail($id);
-        $pengajuan->status = 'dicairkan';
-        $pengajuan->tanggal_pencairan = now();
-        $pengajuan->save();
+        
+        if ($pengajuan->status !== 'disetujui_kepsek') {
+            return redirect()->back()->with('error', 'Hanya pengajuan yang sudah disetujui Kepsek yang bisa dicairkan.');
+        }
 
-        // Notifikasi ke pembuat pengajuan
-        $user = $pengajuan->user;
-        $user->notify(new StatusPengajuanUpdated($pengajuan, 'Dana pengajuan Anda telah dicairkan oleh Bendahara.'));
+        // Cek ketersediaan saldo kas
+        $availableBalance = PenerimaanDana::getAvailableBalance();
+        if ($pengajuan->jumlah_dana > $availableBalance) {
+            return redirect()->back()->with('error', 'Saldo kas tidak mencukupi untuk pencairan ini (Tersedia: Rp ' . number_format($availableBalance, 0, ',', '.') . ')');
+        }
+
+        \DB::transaction(function() use ($pengajuan) {
+            $pengajuan->status = 'dicairkan';
+            $pengajuan->tanggal_pencairan = now();
+            $pengajuan->save();
+
+            // Notifikasi ke pembuat pengajuan
+            $user = $pengajuan->user;
+            $user->notify(new StatusPengajuanUpdated($pengajuan, 'Dana pengajuan Anda telah dicairkan oleh Bendahara.'));
+        });
 
         return redirect()->back()->with('success', 'Dana berhasil dicairkan');
     }
@@ -168,13 +207,36 @@ class PengajuanController extends Controller
     public function realisasiLangsung(Request $request)
     {
         $request->validate([
-            'rkas_id' => 'required',
+            'rkas_id' => 'required|exists:rkas,id',
             'kegiatan_idx' => 'required',
-            'jumlah' => 'required|numeric',
+            'jumlah' => 'required|numeric|min:1',
             'keterangan' => 'required',
         ]);
 
         $rkas = RKAS::findOrFail($request->rkas_id);
+        
+        // Pastikan RKAS sudah disetujui
+        if ($rkas->status !== 'disetujui') {
+            return back()->with('error', 'Hanya bisa mencatat realisasi untuk RKAS yang sudah disetujui.');
+        }
+
+        // Pastikan kegiatan_idx valid
+        if (!isset($rkas->kegiatan_list[$request->kegiatan_idx])) {
+            return back()->with('error', 'Kategori kegiatan tidak valid.');
+        }
+
+        // Cek Budget
+        $remaining = $rkas->getRemainingBudget($request->kegiatan_idx);
+        if ($request->jumlah > $remaining) {
+            return back()->with('error', 'Jumlah melebihi sisa anggaran (Sisa: Rp ' . number_format($remaining, 0, ',', '.') . ')');
+        }
+
+        // Cek Saldo Kas
+        $availableBalance = PenerimaanDana::getAvailableBalance();
+        if ($request->jumlah > $availableBalance) {
+            return back()->with('error', 'Saldo kas tidak mencukupi (Tersedia: Rp ' . number_format($availableBalance, 0, ',', '.') . ')');
+        }
+
         $kegiatan = $rkas->kegiatan_list[$request->kegiatan_idx];
 
         Pengajuan::create([
@@ -218,7 +280,11 @@ class PengajuanController extends Controller
             'bukti' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        $pengajuan = Pengajuan::findOrFail($id);
+        $pengajuan = Pengajuan::where('user_id', Auth::id())->findOrFail($id);
+
+        if ($pengajuan->status !== 'dicairkan') {
+            return redirect()->back()->with('error', 'Hanya bisa upload bukti untuk pengajuan yang sudah dicairkan.');
+        }
 
         $file = $request->file('bukti');
         $namafile = time() . '_' . $file->getClientOriginalName();

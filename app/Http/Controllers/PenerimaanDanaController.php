@@ -20,7 +20,7 @@ class PenerimaanDanaController extends Controller
     {
         $request->validate([
             'sumber_dana' => 'required',
-            'jumlah' => 'required|numeric',
+            'jumlah' => 'required|numeric|min:1',
             'tanggal_penerimaan' => 'required|date',
         ]);
 

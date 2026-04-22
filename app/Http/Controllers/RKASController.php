@@ -19,8 +19,25 @@ class RKASController extends Controller
     {
         $request->validate([
             'tahun_ajaran' => 'required',
-            'total_anggaran' => 'required|numeric',
+            'total_anggaran' => 'required|numeric|min:1',
+            'activities' => 'required|array|min:1',
+            'activities.*.name' => 'required',
+            'activities.*.amount' => 'required|numeric|min:1',
+        ], [
+            'activities.required' => 'Daftar kegiatan tidak boleh kosong.',
+            'activities.min' => 'Minimal harus ada satu kegiatan.',
+            'activities.*.name.required' => 'Nama kegiatan harus diisi.',
+            'activities.*.amount.min' => 'Nominal kegiatan harus lebih dari 0.',
         ]);
+
+        // Cek apakah sudah ada RKAS untuk tahun ajaran ini (yang pending atau disetujui)
+        $exists = RKAS::where('tahun_ajaran', $request->tahun_ajaran)
+            ->whereIn('status', ['menunggu', 'disetujui'])
+            ->exists();
+
+        if ($exists) {
+            return redirect()->back()->with('error', 'RKAS untuk tahun ajaran ' . $request->tahun_ajaran . ' sudah ada atau sedang menunggu persetujuan.')->withInput();
+        }
 
         $rkas = RKAS::create([
             'user_id' => Auth::id(),
@@ -58,16 +75,18 @@ class RKASController extends Controller
     {
         $rkas = RKAS::findOrFail($id);
         
-        // Ambil pengajuan yang sudah cair untuk RKAS ini
+        // Ambil pengajuan yang sudah cair atau selesai untuk RKAS ini
         $pengajuans = Pengajuan::where('rkas_id', $rkas->id)
-            ->where('status', 'dicairkan')
+            ->whereIn('status', ['dicairkan', 'selesai'])
             ->get();
 
         // Hitung realisasi per kegiatan
         if ($rkas->kegiatan_list) {
             $activities = collect($rkas->kegiatan_list)->map(function($item, $index) use ($pengajuans) {
-                // Cari total pengeluaran untuk index kegiatan ini
-                $item['realisasi'] = $pengajuans->where('kegiatan_idx', $index)->sum('jumlah_dana');
+                // Cari pengeluaran untuk index kegiatan ini
+                $kegiatan_pengajuans = $pengajuans->where('kegiatan_idx', $index);
+                $item['realisasi'] = $kegiatan_pengajuans->sum('jumlah_dana');
+                $item['details'] = $kegiatan_pengajuans->values()->toArray(); // Tambahkan rincian
                 return $item;
             });
             $rkas->kegiatan_list = $activities->toArray();
@@ -79,6 +98,11 @@ class RKASController extends Controller
     public function approve($id)
     {
         $rkas = RKAS::findOrFail($id);
+        
+        if ($rkas->status !== 'menunggu') {
+            return redirect()->back()->with('error', 'Hanya RKAS berstatus menunggu yang bisa disetujui.');
+        }
+
         $rkas->status = 'disetujui';
         $rkas->save();
 
@@ -95,6 +119,11 @@ class RKASController extends Controller
         ]);
 
         $rkas = RKAS::findOrFail($id);
+        
+        if ($rkas->status !== 'menunggu') {
+            return redirect()->back()->with('error', 'Hanya RKAS berstatus menunggu yang bisa ditolak.');
+        }
+
         $rkas->status = 'ditolak';
         $rkas->alasan_penolakan = $request->alasan_penolakan;
         $rkas->save();
