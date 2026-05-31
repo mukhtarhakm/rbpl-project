@@ -55,10 +55,10 @@
                         </div>
                         <div class="max-h-96 overflow-y-auto">
                             @forelse($notifications as $notif)
-                                <div class="p-5 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 relative">
+                                <a href="{{ ($notif->data['type'] ?? '') == 'RKAS' ? '/rkas/status/'.$notif->data['item_id'] : '/pencairan/detail/'.$notif->data['item_id'] }}" class="block p-5 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 relative">
                                     <p class="text-xs font-bold text-gray-800 mb-1 leading-relaxed">{{ $notif->data['message'] }}</p>
                                     <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">{{ $notif->created_at->diffForHumans() }}</p>
-                                </div>
+                                </a>
                             @empty
                                 <div class="p-10 text-center space-y-3">
                                     <div class="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto text-gray-300">
@@ -297,7 +297,7 @@
 
             <div class="bg-white rounded-[3rem] shadow-sm border border-gray-100 overflow-hidden">
                 @forelse($notifications as $notif)
-                    <div class="p-8 flex items-start gap-6 border-b border-gray-50 hover:bg-gray-50/50 transition-all group {{ $loop->last ? 'border-b-0' : '' }}">
+                    <a href="{{ ($notif->data['type'] ?? '') == 'RKAS' ? '/rkas/status/'.$notif->data['item_id'] : '/pencairan/detail/'.$notif->data['item_id'] }}" class="p-8 flex items-start gap-6 border-b border-gray-50 hover:bg-gray-50/50 transition-all group {{ $loop->last ? 'border-b-0' : '' }} block">
                         <div class="w-12 h-12 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-lg transition group-hover:scale-110
                             {{ $notif->data['type'] == 'RKAS' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600' }}">
                             @if($notif->data['type'] == 'RKAS')
@@ -318,7 +318,7 @@
                             <p class="text-xs text-gray-500 font-medium leading-relaxed">{{ $notif->data['message'] }}</p>
                         </div>
                         <div class="w-2 h-2 rounded-full bg-blue-500 shadow-lg shadow-blue-200 mt-2"></div>
-                    </div>
+                    </a>
                 @empty
                     <div class="p-20 text-center space-y-4">
                         <div class="w-20 h-20 bg-gray-50 rounded-[2rem] flex items-center justify-center mx-auto text-gray-300">

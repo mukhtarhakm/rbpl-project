@@ -14,8 +14,8 @@ class PengajuanController extends Controller
 {
     public function create()
     {
-        $rkas_aktif = RKAS::where('status', 'disetujui')->latest()->first();
-        return view('civitas.ajukan', compact('rkas_aktif'));
+        $rkas_list = RKAS::where('status', 'disetujui')->latest()->get();
+        return view('civitas.ajukan', compact('rkas_list'));
     }
 
     public function store(Request $request)
@@ -67,7 +67,7 @@ class PengajuanController extends Controller
             $kepsek->notify(new \App\Notifications\StatusPengajuanUpdated($pengajuan, 'Ada pengajuan dana baru dari ' . Auth::user()->name . ' (' . $pengajuan->judul . ') yang butuh persetujuan.'));
         }
 
-        return redirect('/ajukan')->with('success', 'Pengajuan berhasil dikirim');
+        return redirect('/pengajuan/create')->with('success', 'Pengajuan berhasil dikirim');
     }
 
     public function index()
@@ -248,7 +248,7 @@ class PengajuanController extends Controller
             'jumlah_dana' => $request->jumlah,
             'tanggal_dibutuhkan' => now(),
             'tanggal_pencairan' => now(),
-            'status' => 'dicairkan', // Langsung cair
+            'status' => 'selesai', // Langsung selesai
         ]);
 
         return redirect()->back()->with('success', 'Realisasi berhasil dicatat');

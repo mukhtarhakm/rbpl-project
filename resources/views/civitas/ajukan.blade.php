@@ -76,29 +76,38 @@
                     placeholder="Contoh: Pembelian ATK Kelas" required>
             </div>
 
+            <!-- PILIH TAHUN AJARAN (RKAS) -->
+            <div class="bg-white p-6 rounded-[2.5rem] shadow-sm input-card space-y-3">
+                <label class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Tahun Ajaran (RKAS)
+                </label>
+                <select name="rkas_id" id="rkas_select" 
+                    class="w-full bg-gray-50/50 rounded-2xl p-4 outline-none border-none focus:ring-2 focus:ring-blue-100 text-gray-900 font-bold transition-all appearance-none cursor-pointer"
+                    required>
+                    <option value="" disabled selected>--- Pilih Tahun Ajaran ---</option>
+                    @foreach($rkas_list as $rkas)
+                        <option value="{{ $rkas->id }}">
+                            Tahun {{ $rkas->tahun_ajaran }} (Pagu: Rp {{ number_format($rkas->jumlah_dana, 0, ',', '.') }})
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
             <!-- PILIH KEGIATAN RKAS -->
             <div class="bg-white p-6 rounded-[2.5rem] shadow-sm input-card space-y-3">
                 <label class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
-                    Anggaran Kegiatan (RKAS {{ $rkas_aktif->tahun_ajaran ?? '-' }})
+                    Anggaran Kegiatan
                 </label>
-                <input type="hidden" name="rkas_id" value="{{ $rkas_aktif->id ?? '' }}">
-                <select name="kegiatan_idx" 
+                <select name="kegiatan_idx" id="kegiatan_select" 
                     class="w-full bg-gray-50/50 rounded-2xl p-4 outline-none border-none focus:ring-2 focus:ring-blue-100 text-gray-900 font-bold transition-all appearance-none cursor-pointer"
                     required>
                     <option value="" disabled selected>--- Pilih Kategori Anggaran ---</option>
-                    @if($rkas_aktif && $rkas_aktif->kegiatan_list)
-                        @foreach($rkas_aktif->kegiatan_list as $idx => $kegiatan)
-                            {{-- Sembunyikan kategori yang hanya urusan Bendahara --}}
-                            @if(!Str::contains($kegiatan['name'], ['Gaji', 'Operasional']))
-                                <option value="{{ $idx }}">{{ $kegiatan['name'] }}</option>
-                            @endif
-                        @endforeach
-                    @else
-                        <option value="" disabled>Belum ada RKAS Aktif</option>
-                    @endif
                 </select>
             </div>
 
@@ -205,5 +214,51 @@
     </div>
     @endif
 
+    <script>
+        const rkasData = @json($rkas_list);
+        const rkasSelect = document.getElementById('rkas_select');
+        const kegiatanSelect = document.getElementById('kegiatan_select');
+
+        if (rkasSelect && kegiatanSelect) {
+            rkasSelect.addEventListener('change', function() {
+                const selectedRkasId = this.value;
+                const selectedRkas = rkasData.find(item => item.id == selectedRkasId);
+                
+                // Clear existing options
+                kegiatanSelect.innerHTML = '<option value="" disabled selected>--- Pilih Kategori Anggaran ---</option>';
+                
+                if (selectedRkas) {
+                    let list = selectedRkas.kegiatan_list;
+                    if (typeof list === 'string') {
+                        try {
+                            list = JSON.parse(list);
+                        } catch (e) {
+                            list = [];
+                        }
+                    }
+
+                    if (list) {
+                        // Mendukung format Array biasa maupun Object (associative array)
+                        const entries = Array.isArray(list) 
+                            ? list.map((item, idx) => [idx, item]) 
+                            : Object.entries(list);
+
+                        entries.forEach(([idx, kegiatan]) => {
+                            if (kegiatan && kegiatan.name) {
+                                // Sembunyikan kategori yang mengandung kata 'Gaji' atau 'Operasional'
+                                const isGajiOrOperasional = kegiatan.name.includes('Gaji') || kegiatan.name.includes('Operasional');
+                                if (!isGajiOrOperasional) {
+                                    const option = document.createElement('option');
+                                    option.value = idx;
+                                    option.textContent = kegiatan.name;
+                                    kegiatanSelect.appendChild(option);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    </script>
 </body>
 </html>

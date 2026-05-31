@@ -36,7 +36,7 @@
 
             <div class="divide-y divide-gray-50">
                 @forelse($notifications as $notif)
-                    <div class="p-8 noti-card flex gap-6 items-start {{ $notif->read_at ? 'opacity-60' : 'bg-blue-50/30' }}">
+                    <a href="/dashboard/kepsek/persetujuan/{{ strtolower($notif->data['type'] ?? 'pengajuan') }}/{{ $notif->data['item_id'] }}" class="p-8 noti-card flex gap-6 items-start {{ $notif->read_at ? 'opacity-60' : 'bg-blue-50/30' }} hover:bg-blue-50/60 block transition duration-200">
                         <div class="flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center {{ $notif->read_at ? 'bg-gray-100 text-gray-400' : 'bg-blue-600 text-white shadow-lg shadow-blue-100' }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -51,7 +51,7 @@
                             </div>
                             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{{ $notif->created_at->isoFormat('D MMMM Y, HH:mm') }} ({{ $notif->created_at->diffForHumans() }})</p>
                         </div>
-                    </div>
+                    </a>
                 @empty
                     <div class="py-32 text-center space-y-4">
                         <div class="w-20 h-20 bg-gray-50 rounded-[2rem] flex items-center justify-center mx-auto text-gray-200">

@@ -55,10 +55,10 @@
                         </div>
                         <div class="max-h-96 overflow-y-auto">
                             @forelse($notifications as $notif)
-                                <div class="p-6 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 relative">
+                                <a href="/dashboard/kepsek/persetujuan/{{ strtolower($notif->data['type'] ?? 'pengajuan') }}/{{ $notif->data['item_id'] }}" class="block p-6 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 relative">
                                     <p class="text-xs font-bold text-gray-800 mb-1 leading-relaxed">{{ $notif->data['message'] }}</p>
                                     <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">{{ $notif->created_at->diffForHumans() }}</p>
-                                </div>
+                                </a>
                             @empty
                                 <div class="p-12 text-center space-y-3">
                                     <div class="w-16 h-16 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto text-gray-200">
